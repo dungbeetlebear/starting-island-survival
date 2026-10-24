@@ -1,6 +1,8 @@
 local G=GLOBAL
-SIS_HAS_HAMLET=G.PORKLAND_DLC and G.IsDLCInstalled and G.IsDLCEnabled
-    and G.IsDLCInstalled(G.PORKLAND_DLC) and G.IsDLCEnabled(G.PORKLAND_DLC) or false
+-- Enabled DLC flags describe the selected compatibility pack, not whether its
+-- installed prefabs can load. They also change while the frontend selects a save.
+SIS_HAS_HAMLET=G.PORKLAND_DLC and G.IsDLCInstalled
+    and G.IsDLCInstalled(G.PORKLAND_DLC) or false
 SIS_DUG_TREASURE_DEPTH=0
 
 -- Also load dependencies when options are off: creatures, maps and mayors

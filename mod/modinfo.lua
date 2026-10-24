@@ -51,7 +51,7 @@ sis_i18n = {
             },
             hamlet_treasure_creatures = {
                 label = "挖宝哈姆雷特怪物",
-                hover = "原有怪物名额均匀抽取原版及哈姆雷特有攻击力的小型生物；不增加总数量。排除无辜动物、Boss和大型生物；捕蝇草最小阶段，雷鸟无电。需要启用哈姆雷特内容。",
+                hover = "铲子、风向标、船炮和爆炸挖宝均生效。原怪物名额均分给有攻击力的小型生物，不增加总量，排除无辜动物和大型生物；捕蝇草最小，雷鸟无电。需要安装哈姆雷特。",
                 options = {"关闭", "开启"},
             },
             island_bandits = {
@@ -66,7 +66,7 @@ sis_i18n = {
             },
             treasure_materials = {
                 label = "挖宝植物材料",
-                hover = "在含纸张或绳索的挖宝随机资源池加入树篱修剪物和荧光果，每种抽中时给1至2个；赌博机直接奖励不变。需要哈姆雷特。",
+                hover = "铲子、风向标、船炮和爆炸挖宝均生效。在含纸张或绳索的随机资源池加入树篱修剪物和荧光果，抽中时各1至2个；赌博机直接奖励不变。需要哈姆雷特。",
                 options = {"关闭", "开启"},
             },
             shop_horns = {
@@ -131,7 +131,7 @@ sis_i18n = {
             },
             hamlet_treasure_creatures = {
                 label = "Treasure monsters",
-                hover = "Share existing monster slots equally with small Hamlet creatures capable of attacking. No innocent wildlife, bosses or large creatures. Flytraps start small; Thunderbirds are non-electric. Hamlet must be enabled.",
+                hover = "Shovels, wind staffs, cannons and explosions share monster slots equally with small attacking Hamlet creatures. No innocent wildlife or large creatures. Small Flytraps, non-electric Thunderbirds. Hamlet required.",
                 options = {"Off", "On"},
             },
             island_bandits = {
@@ -146,7 +146,7 @@ sis_i18n = {
             },
             treasure_materials = {
                 label = "Plant loot",
-                hover = "Add Clippings and Light Bulbs to dug treasure pools with Papyrus/Rope. Each selected material yields 1-2. Direct slot-machine prizes stay unchanged. Hamlet required.",
+                hover = "Shovels, wind staffs, cannons and explosions: add Clippings and Light Bulbs to treasure pools with Papyrus/Rope, 1-2 each when selected. Direct slot-machine prizes unchanged. Hamlet required.",
                 options = {"Off", "On"},
             },
             shop_horns = {
@@ -169,13 +169,16 @@ local text = sis_i18n[chinese and "zh" or "en"]
 name = text.name
 description = text.description
 author = "Starting Island Survival"
-version = "1.t"
+version = "1.u"
 api_version = 6
 priority = -10
 dont_starve_compatible = false
 reign_of_giants_compatible = false
 shipwrecked_compatible = true
-hamlet_compatible = false
+-- Hamlet-compatible Shipwrecked saves can have ONLY the Hamlet flag enabled.
+-- This permits the engine to load the mod for that content pack; sis_config
+-- still scopes all gameplay to the actual Shipwrecked world prefab.
+hamlet_compatible = true
 dst_compatible = false
 forumthread = ""
 icon_atlas = "modicon.xml"

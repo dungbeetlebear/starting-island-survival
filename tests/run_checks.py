@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT / ".tools" / "python"))
 from lupa.lua51 import LuaRuntime
 
 
-def runtime(config="{}", mode="shipwrecked", locale="en", hamlet=True, hamlet_enabled=True):
+def runtime(config="{}", mode="shipwrecked", locale="en", hamlet=True, hamlet_enabled=True, before_mod=""):
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.globals().MOD_ROOT = (ROOT / "mod").as_posix()
     lua.globals().MODE = mode
@@ -16,6 +16,8 @@ def runtime(config="{}", mode="shipwrecked", locale="en", hamlet=True, hamlet_en
     lua.globals().HAMLET_ENABLED = hamlet_enabled
     lua.execute("CONFIG = " + config)
     lua.execute((ROOT / "tests" / "harness.lua").read_text(encoding="utf-8"))
+    if before_mod:
+        lua.execute(before_mod)
     lua.execute('dofile(MOD_ROOT .. "/modmain.lua")')
     return lua
 
@@ -32,7 +34,7 @@ def syntax_and_metadata():
         compile_lua(path.read_text(encoding="utf-8"), path.name)
     lua.execute((ROOT / "mod" / "modinfo.lua").read_text(encoding="utf-8"))
     lua.execute('''
-        assert(shipwrecked_compatible and not hamlet_compatible and not dont_starve_compatible
+        assert(shipwrecked_compatible and hamlet_compatible and not dont_starve_compatible
             and not reign_of_giants_compatible and not dst_compatible)
         assert(#configuration_options == 14)
         local expected = {language="auto", octopus_no_cooldown=true, gold_guarantee=true,
@@ -436,4 +438,6 @@ for name, fn in [
     check(name, fn)
 from hamlet_checks import run_checks as run_hamlet_checks
 run_hamlet_checks(runtime, check)
+from excavation_checks import run_checks as run_excavation_checks
+run_excavation_checks(runtime, check)
 print("All checks passed. In-game verification is still required.")

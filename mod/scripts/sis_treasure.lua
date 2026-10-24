@@ -38,10 +38,13 @@ AddPrefabPostInit("buriedtreasure",function(t)
     local finish=work and work.onfinish
     if finish then
         work.onfinish=function(inst,worker,...)
-            if not active() or not worker or not worker:HasTag("player") then
+            if not active() or not worker then
                 return finish(inst,worker,...)
             end
-            local track=worker.prefab~="woodlegs"
+            -- Wind staff tornadoes, cannon shots and explosives are the native
+            -- worker too. Scope loot changes to every completed excavation;
+            -- personal gold-pity history still belongs to player shovel digs.
+            local track=worker:HasTag("player") and worker.prefab~="woodlegs"
             local digs=worker._sis_treasure_digs or 0
             -- Choose the original preset with three guaranteed nuggets; do not
             -- tack an extra gold item onto an otherwise unrelated preset.

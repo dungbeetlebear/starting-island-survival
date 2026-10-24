@@ -1,6 +1,6 @@
 # 初始岛生存 Mod 工作区
 
-- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.t`。
+- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.u`。
 - `tests/`：逻辑回归检查，随 GitHub 仓库保存，不需要上传创意工坊。
 - 已保留原发布版的 Git 基线，便于查看本次修改和回退。
 - Steam 原目录未改动。后续继续编辑本工作区的 `mod/`。
@@ -24,13 +24,13 @@
 | 挖宝植物材料 | 关闭 / 开启；修剪物、荧光果各1至2个 | 关闭 |
 | 奇物店出售角 | 关闭 / 开启；守护者之角、河鹿角 | 关闭 |
 
-新增功能默认关闭，鱼骨吸入延续开启。哈姆雷特拓展需要安装并启用哈姆雷特内容；缺少时不加载相关功能，模组的游玩范围仍只限海难。
+新增功能默认关闭，鱼骨吸入延续开启。哈姆雷特拓展需要安装哈姆雷特内容；缺少时不加载相关功能，模组的游玩范围仍只限海难。
 
 盗贼沿用哈姆雷特原版的携带钱币、城市地皮、附近城镇猪屋掩体、昼夜概率、偷窃、逃跑及击杀冷却，仅增加初始岛至少3栋合格房屋（歪斜小木屋不计）的条件，藏宝点和挖出的箱子均只在初始岛。没有钱币、城市地皮或猪屋掩体时不会产生盗贼。
 
-挖宝怪物池保留原来的6种，并加入14种有攻击能力的哈姆雷特小型生物，20种等概率抽取，不提高原有怪物事件概率或数量；排除无辜动物和大型生物。具体名单见 `mod/README.md`。
+挖宝怪物池保留原来的6种，并加入14种有攻击能力的哈姆雷特小型生物，20种等概率抽取，不提高原有怪物事件概率或数量；排除无辜动物和大型生物。具体名单见 `mod/README.md`。铲子、风向标、船炮、火药、椰子炸弹及其他原版挖宝路径均应用新增掉落；金块保底继续只记录角色亲手挖掘。
 
-已删除 F 自动攻击跳过墙的功能。兼容声明仅开启海难，并对各项初始化增加海难世界检查。
+已删除 F 自动攻击跳过墙的功能。运行时按实际世界检查，仅海难生效。为支持启用了哈姆雷特兼容内容的海难存档，允许引擎在这两种内容包下加载；进入真正的哈姆雷特世界仍不启用玩法调整。
 
 赌博机岛使用赌博机所在的连通陆地判定，允许整岛登陆；不会开放其他岛或世界出口。关闭选项后，读档时会把停留在赌博机岛上的角色送回允许的安全位置。
 
@@ -76,6 +76,13 @@ Choose **Language → Auto / 中文 / English** in the mod configuration. Auto u
 | Plant loot | Off / On; Clippings and Light Bulbs, 1-2 each when selected | Off |
 | Shop horns | Off / On; Guardian's Horn and Hippopotamoose Antler | Off |
 
-All new optional features default to Off; Fishbone suction stays On. Hamlet extensions require installed and enabled Hamlet content. Bandits use the native Hamlet currency, city ground, nearby town-pig-house cover, time-of-day odds, stealing, escape and death cooldown rules, with an additional three-building threshold on the starting island, excluding Slanty Shanties. Their treasure always stays on the starting island. The treasure monster switch shares the original monster slots uniformly across 6 original and 14 attacking Hamlet creatures without increasing encounter frequency or count. Innocent wildlife and large creatures are excluded.
+All new optional features default to Off; Fishbone suction stays On. Hamlet extensions require installed Hamlet content. The engine may load the mod under the Hamlet compatibility pack so linked Shipwrecked saves work; gameplay remains restricted to actual Shipwrecked worlds. Bandits use the native Hamlet currency, city ground, nearby town-pig-house cover, time-of-day odds, stealing, escape and death cooldown rules, with an additional three-building threshold on the starting island, excluding Slanty Shanties. Their treasure always stays on the starting island. The treasure monster switch shares the original monster slots uniformly across 6 original and 14 attacking Hamlet creatures without increasing encounter frequency or count. Innocent wildlife and large creatures are excluded. New treasure loot applies to shovel, wind staff, cannon and explosive excavations. Personal gold-pity history continues to track player shovel digs only.
 
 The `mod/` folder contains the complete Workshop mod. This repository also includes documentation and Lua 5.1 regression checks in `tests/`; local test dependencies are excluded. Only upload `mod/` to Steam Workshop. The original Steam installation is kept separate from this workspace.
+
+
+## 1.u 修复与复测
+
+修复风向标、船炮和爆炸等非玩家实体挖开宝藏时跳过新增掉落的问题；修复把内容包启用标志当作安装状态的问题，并允许游戏为哈姆雷特兼容的海难存档加载 Mod。怪物和植物材料仍分别受各自开关控制，默认值不变。
+
+将工作区 `mod/` 更新到本地测试目录后，完全退出并重启游戏，确认版本为 `1.u`；开启“挖宝哈姆雷特怪物”和“挖宝植物材料”，再使用先前的生成指令测试。已生成但尚未挖开的宝藏也会使用修复后的规则，无需重建世界。未安装哈姆雷特时，相关拓展不生效。

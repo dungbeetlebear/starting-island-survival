@@ -21,7 +21,9 @@ def run_checks(runtime, check):
             local loot={snake=3,goldnugget=1}; SIS_AdjustDugLoot(loot)
             assert(loot.snake==3 and loot.goldnugget==1)
         ''')
-        assert not runtime(hamlet_enabled=False).eval("SIS_HAS_HAMLET or PrefabFiles ~= nil")
+        # DLC flags may be off in the frontend or a plain SW compatibility pack;
+        # installed Hamlet content must still be available after entering SW.
+        assert runtime(hamlet_enabled=False).eval("SIS_HAS_HAMLET and PrefabFiles ~= nil")
         for mode in ["survival", "porkland", "volcano", "cave"]:
             lua = runtime('{alloy_deconstruction=true,island_bandits=true,townhall_mayor=true,shop_horns=true}', mode=mode)
             lua.execute('''
@@ -65,7 +67,7 @@ def run_checks(runtime, check):
                     return SpawnTreasureChest(inst.loot,{inst=inst})
                 end
                 init("prefab","buriedtreasure",t)
-                local worker={prefab=prefab,HasTag=function(_,tag) return tag=="player" end}
+                local worker={prefab=prefab,HasTag=function(_,tag) return tag=="player" and prefab~="tornado" end}
                 return t.components.workable.onfinish(t,worker),worker
             end
             local def,worker=dig("woodlegs","resources")
@@ -81,6 +83,13 @@ def run_checks(runtime, check):
             local count=0; for _,v in pairs(LAST_GENERATED_LOOT) do count=count+v end
             assert(count==2 and LOOT.attack.loot.snake==2)
             assert(SIS_DUG_TREASURE_DEPTH==0)
+            math.random=function(low,high) assert(low==1 and high==20); return 7 end
+            local _,tornado=dig("tornado","attack")
+            assert(LAST_GENERATED_LOOT.mean_flytrap==2 and not LAST_GENERATED_LOOT.snake)
+            assert(not tornado._sis_treasure_digs and SIS_DUG_TREASURE_DEPTH==0)
+            math.random=random
+            local resources=dig("tornado","resources")
+            assert(resources.random_loot.clippings==1 and resources.random_loot.lightbulb==1)
             assert(SpawnTreasureChest("resources",{inst={}})==LOOT.resources)
             assert(GetTreasureLootDefinition("attack")==LOOT.attack)
             local t={components={workable={onfinish=function() error("test failure") end}}}
