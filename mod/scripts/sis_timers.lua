@@ -1,9 +1,9 @@
 local G=GLOBAL
 local brains=G.setmetatable({},{__mode="k"})
-AddPrefabPostInit("coral_brain_rock",function(e) brains[e]=true end)
+SIS.AddPrefabPostInit("coral_brain_rock",function(e) brains[e]=true end)
 
 -- Remember whether this green season's first rain has happened, across saves.
-AddComponentPostInit("seasonmanager",function(s)
+SIS.AddComponentPostInit("seasonmanager",function(s)
     if not s.IsGreenSeason then return end
     local green,precip,save,load=s.StartGreen,s.StartPrecip,s.OnSave,s.OnLoad
     s.StartGreen=function(self,...)
@@ -60,11 +60,14 @@ local function timers()
     if w~=last_world then last_update=-1; last_world=w end
     local now=G.GetTime()
     if now-last_update<.25 then return last_text end
-    local rows={"\n-------SINGLE-ISLAND----------------------"}
+    local rows={}
+    local function add(label,time,suffix)
+        if time and time>0 then rows[#rows+1]=label..seconds(time)..(suffix or "") end
+    end
     local kr=p.components.krakener
     if kr and not kr.kraken then
         local cooldown=kr:TimeUntilCanSpawn()
-        if cooldown and cooldown>0 then rows[#rows+1]="Kraken: Can Spawn In: "..seconds(cooldown) end
+        add("Kraken: Can Spawn In: ",cooldown)
     end
     local s=w.components.seasonmanager
     local vm=w.components.volcanomanager
@@ -73,7 +76,7 @@ local function timers()
         if seg then
             local segment=G.TUNING.TOTAL_DAY_TIME/16
             local within=(G.GetClock():GetNormTime()*G.TUNING.TOTAL_DAY_TIME)%segment
-            rows[#rows+1]="Volcano: Eruption In: "..seconds(seg*segment-within)
+            add("Volcano: Eruption In: ",seg*segment-within)
         end
     end
     if s and s:IsWetSeason() then
@@ -81,12 +84,12 @@ local function timers()
         local h=bh and bh.hasslers.TWISTER
         if h and h.HASSLER_STATE~="DORMANT" then
             local t=h.timer+(h.HASSLER_STATE=="WAITING" and h.warnduration or 0)
-            rows[#rows+1]="Twister: "..h.HASSLER_STATE.." In: "..seconds(t)
+            add("Twister: "..h.HASSLER_STATE.." In: ",t)
         end
     end
     if s and s:IsGreenSeason() and not s._sis_first_rain then
         local t=raineta(s)
-        if t then rows[#rows+1]="First Rain: In: "..seconds(t) end
+        add("First Rain: In: ",t)
     end
     local pending={}
     for e in pairs(brains) do
@@ -101,9 +104,10 @@ local function timers()
     table.sort(pending,function(a,b) if a.x==b.x then return a.z<b.z end return a.x<b.x end)
     for _,b in ipairs(pending) do
         local t=b.pick.paused and b.pick.pause_time or (b.pick.targettime-now)
-        rows[#rows+1]=string.format("Brain Coral (%d, %d): Regen in: %s%s",math.floor(b.x),math.floor(b.z),seconds(t or 0),b.pick.paused and " paused" or "")
+        add(string.format("Brain Coral (%d, %d): Regen in: ",math.floor(b.x),math.floor(b.z)),t,b.pick.paused and " paused" or "")
     end
-    last_update,last_text=now,table.concat(rows,"\n")
+    last_update=now
+    last_text=#rows>0 and "\n-------SINGLE-ISLAND----------------------\n"..table.concat(rows,"\n") or ""
     return last_text
 end
 local olddebug=G.GetDebugString

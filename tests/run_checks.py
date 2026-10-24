@@ -38,7 +38,7 @@ def syntax_and_metadata():
             and not reign_of_giants_compatible and not dst_compatible)
         assert(#configuration_options == 14)
         local expected = {language="auto", octopus_no_cooldown=true, gold_guarantee=true,
-            casino_landing=false, gem_multiplier=2, season_length="70_days", coastal_spiderden=true,
+            casino_landing=false, gem_multiplier=2, season_length="70_days", coastal_spiderden=1,
             alloy_deconstruction=false,fishbone_vacuum=true,hamlet_treasure_creatures=false,
             island_bandits=false,townhall_mayor=false,treasure_materials=false,shop_horns=false}
         for _, option in ipairs(configuration_options) do
@@ -155,7 +155,7 @@ def internationalization():
     ''')
     lua = runtime('{gold_guarantee=false,casino_landing=true,gem_multiplier=3}', locale="zh")
     lua.execute('''
-        -- An older configuration has no language row: use Auto and retain gameplay choices.
+        -- Partial settings use Auto and retain explicit gameplay choices.
         SAVED_CONFIG={{name="gold_guarantee",saved=false},
             {name="casino_landing",saved=true},{name="gem_multiplier",saved=3}}
         local settings=KnownModIndex:LoadModConfigurationOptions(modname)
@@ -176,22 +176,22 @@ def isolation_and_toggles():
                 for _, callback in ipairs(callbacks) do callback({prefab=MODE}) end
             end
             for _, callback in ipairs(HOOKS.player) do callback({}) end
-            assert(not SIS_IsShipwrecked())
+            assert(not SIS.IsShipwrecked())
             assert(GetDebugString() == "vanilla")
             assert(GetTreasureLootDefinition("sample") == LOOT.sample)
         ''')
     lua = runtime('{octopus_no_cooldown=false, gold_guarantee=false, casino_landing=false, '
-                  'gem_multiplier=1, season_length="vanilla", coastal_spiderden=false}')
+                  'gem_multiplier=1, season_length="vanilla", coastal_spiderden=0}')
     lua.execute('''
         assert(not SIS_CONFIG.octopus_no_cooldown and not SIS_CONFIG.gold_guarantee)
-        assert(not SIS_CONFIG.casino_landing and not SIS_CONFIG.coastal_spiderden)
+        assert(not SIS_CONFIG.casino_landing and SIS_CONFIG.coastal_spiderden==0)
         assert(not HOOKS.prefab.octopusking and not HOOKS.component.tradable)
         assert(not HOOKS.prefab.spiderden and not HOOKS.prefab.slotmachine)
         assert(not HOOKS.component.combat)
-        WORLD=nil; MODE="survival"; assert(not SIS_IsShipwrecked())
-        MODE="shipwrecked"; assert(SIS_IsShipwrecked())
+        WORLD=nil; MODE="survival"; assert(not SIS.IsShipwrecked())
+        MODE="shipwrecked"; assert(SIS.IsShipwrecked())
         SaveGameIndex.GetCurrentSaveSlot=function() return nil end
-        assert(not SIS_IsShipwrecked())
+        assert(not SIS.IsShipwrecked())
     ''')
 
 
@@ -289,12 +289,6 @@ def treasure():
             assert(c.treasure_digs==4 and not c.treasure_gold)
             assert(dig(nil)==(SIS_CONFIG.gold_guarantee and "gems" or "sample"))
             assert(c.treasure_digs==5)
-            for _,old_gold in ipairs({false,true}) do
-                c=reset(); p._sis_treasure_digs=4; p._sis_treasure_gold=old_gold
-                local guaranteed=SIS_CONFIG.gold_guarantee and not old_gold
-                assert(dig("cannonshot")== (guaranteed and "gems" or "sample"))
-                assert(c.treasure_digs==5 and c.treasure_gold==(old_gold or guaranteed))
-            end
             c=reset(); c.treasure_digs=7
             assert(dig("coconade")=="sample" and c.treasure_digs==8)
             local setting=SIS_CONFIG.gold_guarantee
@@ -382,9 +376,9 @@ def casino():
         assert(disabled:IsForbidden(48,0) and disabled:IsAllowed(0,0))
         local safe=disabled:GetSafePoint({_sis_land={48,0}},false)
         assert(disabled:IsAllowed(safe[1],safe[2]))
-        local old={tiles=data.tiles,home=data.home,seahome=data.seahome}
-        local upgraded=new(true); upgraded:OnLoad(old)
-        -- Machine restores after world OnLoad: its prefab callback fills the map.
+        local pending={tiles=data.tiles,home=data.home,seahome=data.seahome,treasure_digs=0,treasure_gold=false}
+        local upgraded=new(true); upgraded:OnLoad(pending)
+        -- Machines may restore after the world component.
         machine.DoTaskInTime=function(_,delay,fn) queue_task(fn) end
         init("prefab","slotmachine",machine); run_tasks()
         assert(upgraded:IsAllowed(48,0) and upgraded:IsForbidden(80,0))
@@ -416,35 +410,46 @@ def casino():
 
 
 def spiders():
-    for existing_coastal in [True, False]:
-        lua = runtime()
-        lua.globals().EXISTING_COASTAL = existing_coastal
-        lua.execute('''
-            GROUND={INVALID=-1,IMPASSABLE=-2}
-            WORLD.Map={
-                GetTileAtPoint=function(_,x,y,z) return math.abs(x)>=40 and 2 or 1 end,
-                IsWater=function(_,t) return t==2 end,
-                GetTileCoordsAtPoint=function(_,x,y,z) return x/4,z/4 end,
-                GetTileCenterPoint=function(_,x,y,z) return x,0,z end,
-            }
-            local moved=0
-            for i=1,5 do
-                local x=EXISTING_COASTAL and i==1 and 28 or 0
-                local e={IsValid=function() return true end,ListenForEvent=function() end}
-                e.Transform={GetWorldPosition=function() return x,0,0 end,
-                    SetPosition=function(_,nx,y,z) x=nx; moved=moved+1 end}
-                init("prefab","spiderden",e)
-                Ents[i]=e
-            end
-            run_tasks()
-            assert(moved==(EXISTING_COASTAL and 0 or 1))
-        ''')
+    for desired in [1, 2, 3, 4, 5]:
+        for existing in [0, 1, 5]:
+            lua = runtime('{coastal_spiderden=' + str(desired) + '}')
+            lua.globals().EXISTING_COASTAL = existing
+            lua.globals().DESIRED_COASTAL = desired
+            lua.execute('''
+                GROUND={INVALID=-1,IMPASSABLE=-2,INTERIOR=34}
+                WORLD.Map={
+                    GetTileAtPoint=function(_,x,y,z) return math.abs(x)>=40 and 2 or 1 end,
+                    IsWater=function(_,t) return t==2 end,
+                    GetTileCoordsAtPoint=function(_,x,y,z) return x/4,z/4 end,
+                    GetTileCenterPoint=function(_,x,y,z) return x,0,z end,
+                }
+                local moved=0
+                for i=1,5 do
+                    local x,z=i<=EXISTING_COASTAL and 28 or 0,i*4
+                    local e={IsValid=function() return true end,ListenForEvent=function() end}
+                    e.Transform={GetWorldPosition=function() return x,0,z end,
+                        SetPosition=function(_,nx,y,nz) x,z=nx,nz; moved=moved+1 end}
+                    init("prefab","spiderden",e)
+                    Ents[i]=e
+                end
+                run_tasks()
+                assert(moved==math.max(0,DESIRED_COASTAL-EXISTING_COASTAL))
+                for i,e in ipairs(Ents) do
+                    local x,y,z=e.Transform:GetWorldPosition()
+                    for j=1,i-1 do
+                        local ox,oy,oz=Ents[j].Transform:GetWorldPosition()
+                        assert((x-ox)^2+(z-oz)^2>=16)
+                    end
+                end
+            ''')
 
 
 def trading():
     lua = runtime()
     lua.execute('''
         local events={}
+        local unrelated=function() end
+        local removed_phases=0
         local t={enabled=true,Enable=function(self) self.enabled=true end,
             Disable=function(self) self.enabled=false end,
             OnSave=function(self) return {enabled=self.enabled} end,
@@ -452,10 +457,13 @@ def trading():
         local e={components={trader=t},AnimState={
             PlayAnimation=function() end, IsCurrentAnimation=function() return true end},
             SoundEmitter={PlaySound=function() end},
-            RemoveEventCallback=function() end,
+            RemoveEventCallback=function(_,name,fn)
+                assert(fn~=unrelated)
+                if name=="daytime" or name=="nighttime" then removed_phases=removed_phases+1 end
+            end,
             ListenForEvent=function(_,name,fn) events[name]=fn end}
-        e.event_listening={daytime={[WORLD]={function() t:Enable() end}},
-            nighttime={[WORLD]={function() t:Disable() end}}}
+        e.event_listening={daytime={[WORLD]={function() t:Enable() end,unrelated}},
+            nighttime={[WORLD]={function() t:Disable() end,unrelated}}}
         t.CanAccept=function(self,item) return self.enabled and item.acceptable end
         t.onaccept=function(inst)
             t:Disable(); inst.happy=true
@@ -469,6 +477,7 @@ def trading():
             e.pending=fn; return {Cancel=function() end}
         end
         init("prefab","octopusking",e)
+        assert(removed_phases==2)
         local permanent={acceptable=true,components={}}
         local food={acceptable=true,components={edible={}}}
         local stale={acceptable=true,components={perishable={}}}
@@ -496,7 +505,7 @@ for name, fn in [
     ("gem multipliers/caps and fifth-dig gold guarantee", treasure),
     ("70-day cycle versus original 72-day timing", seasons),
     ("whole casino island, other islands, save/load and option changes", casino),
-    ("coastal spiderden: zero or at most one move", spiders),
+    ("coastal spiderdens: configurable shortfall, separated positions", spiders),
     ("octopus animation lock, daily food gate and save/load", trading),
 ]:
     check(name, fn)
@@ -508,4 +517,6 @@ from interior_checks import run_checks as run_interior_checks
 run_interior_checks(runtime, check)
 from asset_checks import run_checks as run_asset_checks
 run_asset_checks(runtime, check)
+from runtime_checks import run_checks as run_runtime_checks
+run_runtime_checks(runtime, check)
 print("All checks passed. In-game verification is still required.")

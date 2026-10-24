@@ -38,7 +38,6 @@ local function apply(info, settings)
         end
     end
 end
-SIS_ApplyLanguage = apply
 apply(modinfo)
 
 -- Frontend metadata loads before saved settings. UpdateConfigurationOptions

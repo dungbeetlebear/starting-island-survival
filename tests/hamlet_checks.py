@@ -113,7 +113,11 @@ def run_checks(runtime, check):
         lua = runtime('{hamlet_treasure_creatures=true}')
         lua.execute('''
             local function bird()
-                local e={events=0,fx={Remove=function(self) self.removed=true end},components={},
+                local function fx()
+                    return {CancelAllPendingTasks=function(self) self.cancelled=true end,
+                        Hide=function(self) self.hidden=true end}
+                end
+                local e={events=0,fx=fx(),components={},SpawnChild=function() return fx() end,
                     Light={Enable=function(self,value) self.enabled=value end},
                     DoLightning=function(self) self.lightning=true end,
                     PushEvent=function(self) self.events=self.events+1 end,
@@ -129,7 +133,12 @@ def run_checks(runtime, check):
             e:DoLightning(); assert(not e.lightning)
             e:PushEvent("start_charging"); assert(e.events==0)
             e:PushEvent("attacked"); assert(e.events==1)
-            run_tasks(); assert(fx.removed and not e.fx)
+            assert(fx.hidden and fx.cancelled)
+            local future=e:SpawnChild("thunderbird_fx")
+            assert(future.hidden and future.cancelled)
+            local ordinary_child=ordinary:SpawnChild("thunderbird_fx")
+            assert(not ordinary_child.hidden and not ordinary_child.cancelled)
+            local other=e:SpawnChild("other_fx"); assert(not other.hidden and not other.cancelled)
             local data={}; e.OnSave(e,data); assert(data.sis_no_lightning)
             SIS_CONFIG.hamlet_treasure_creatures=false
             local loaded=bird(); init("prefab","thunderbird",loaded); loaded.OnLoad(loaded,data)
@@ -237,7 +246,7 @@ def run_checks(runtime, check):
             assert(bandit.item.prefab=="banditmap" and bandit.item.treasure==c.treasure)
             assert(c.treasure.x==0 and spawns==2)
             local data,refs=c:OnSave()
-            assert(data.sis_island_mode and not data.sis_bandit_day and refs[1]=="native-ref")
+            assert(not data.sis_island_mode and refs[1]=="native-ref")
             assert(c:SpawnTreasureChest(Point(20,0,0))=="native-chest" and chestpoint.x==0)
             c:SpawnTreasureChest(Point(5,0,0)); assert(chestpoint.x==5)
             local t=entity("bandittreasure",20)
@@ -248,8 +257,9 @@ def run_checks(runtime, check):
             local disabled=manager(); disabled:OnLoad(data)
             disabled:OnPeriodicUpdate(); assert(native_updates==3)
             disabled:SpawnTreasureChest(Point(20,0,0)); assert(chestpoint.x==0)
-            -- A foreign manager with the option off is untouched.
-            local foreign=manager(); foreign:OnPeriodicUpdate(); assert(native_updates==4)
+            -- Any Shipwrecked manager obeys the switch; no provenance flags.
+            local disabled_again=manager(); disabled_again:OnPeriodicUpdate(); assert(native_updates==3)
+            WORLD.components.banditmanager=nil
             local unrelated=entity("bandittreasure",20)
             init("prefab","bandittreasure",unrelated); run_tasks(); assert(unrelated.x==20)
         ''')
@@ -367,7 +377,7 @@ def run_checks(runtime, check):
             assert(c.bandit.x==1 and c.bandit.map.treasure==c.treasure and c.treasure.x==0)
             c:OnPeriodicUpdate(); assert(rolls==2) -- already active
             local data,refs=c:OnSave()
-            assert(data.sis_island_mode and data.bandit==c.bandit.GUID and refs[1]==data.bandit)
+            assert(data.bandit==c.bandit.GUID and refs[1]==data.bandit)
             local restored=NATIVE_BANDIT(WORLD)
             init("component","banditmanager",restored); restored:OnLoad(data)
             restored:LoadPostPass({[c.bandit.GUID]={entity=c.bandit}},data)

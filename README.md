@@ -1,112 +1,41 @@
-# 初始岛生存 Mod 工作区
+# 初始岛生存
 
-- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.x`。
-- `tests/`：逻辑回归检查，随 GitHub 仓库保存，不需要上传创意工坊。
-- 已保留原发布版的 Git 基线，便于查看本次修改和回退。
-- Steam 原目录未改动。后续继续编辑本工作区的 `mod/`。
+《饥荒》单机海难模组。当前版本 **2.0**，从新建海难世界开始使用。
 
-## 本次设置
+- `mod/`：本地测试及 Steam 创意工坊上传文件。
+- `WORKSHOP_DESCRIPTION.md`：中英文工坊介绍，按玩家提供的文案整理。
+- `tests/`：Lua 5.1 逻辑及本机原版脚本集成检查。
 
-| 设置 | 选项 | 默认 |
-| --- | --- | --- |
-| 语言 / Language | 跟随游戏 / 中文 / English | 跟随游戏 |
-| 章鱼王非食物交易 | 无每日冷却 / 原版冷却 | 无每日冷却 |
-| 挖宝金块保底 | 有保底 / 无保底 | 有保底 |
-| 赌博机岛登陆 | 不可登陆 / 可以登陆 | 不可登陆 |
-| 幸运帽黄绿宝石倍率 | 1 / 1.5 / 2 / 3 / 4 / 5 / 10 倍 | 2 倍 |
-| 季节时间 | 原版时间 / 风季与火山季各15天（全年70天） | 全年70天 |
-| 蜘蛛巢靠岸 | 至少一个 / 不调整 | 至少一个 |
-| 铸铁块拆解 | 关闭 / 开启；每块返还4铁矿石 | 关闭 |
-| 豹卷风吸鱼骨 | 允许吸入 / 原版 | 允许吸入 |
-| 挖宝哈姆雷特怪物 | 关闭 / 开启；小型、有攻击力的生物 | 关闭 |
-| 城镇盗贼猪人 | 关闭 / 开启；沿用哈姆雷特原机制 | 关闭 |
-| 市政厅自带市长 | 关闭 / 开启；新建市政厅自带一位 | 关闭 |
-| 挖宝植物材料 | 关闭 / 开启；修剪物、荧光果各1至2个 | 关闭 |
-| 奇物店出售角 | 关闭 / 开启；守护者之角、河鹿角 | 关闭 |
+游戏安装目录及存档由玩家管理，本仓库不自动覆盖。
 
-新增功能默认关闭，鱼骨吸入延续开启。哈姆雷特拓展需要安装哈姆雷特内容；缺少时不加载相关功能，模组的游玩范围仍只限海难。
+## 代码结构
 
-盗贼沿用哈姆雷特原版的携带钱币、城市地皮、附近城镇猪屋掩体、昼夜概率、偷窃、逃跑及击杀冷却，仅增加初始岛至少3栋合格房屋（歪斜小木屋不计）的条件，藏宝点和挖出的箱子均只在初始岛。没有钱币、城市地皮或猪屋掩体时不会产生盗贼。
+| 文件 | 职责 |
+| --- | --- |
+| `modmain.lua` | 模块加载顺序 |
+| `sis_config.lua` / `sis_runtime.lua` | 设置、海难作用域和共享入口 |
+| `sis_world.lua` / `components/sisland.lua` | 世界规则、出生岛范围及世界记录 |
+| `sis_access.lua` / `sis_player.lua` | 操作限制、传送落点、角色及复活救援 |
+| `sis_treasure.lua` | 宝藏概率、出金记录及保底 |
+| `sis_hamlet.lua` / `sis_bandits.lua` | 哈姆雷特生物、商店、市政厅和盗贼 |
+| `sis_trade.lua` / `sis_vacuum.lua` | 章鱼王交易和鱼骨吸入 |
+| `sis_spiders.lua` / `sis_timers.lua` | 蜘蛛巢数量及倒计时 |
+| `sis_characters.lua` | 开局物品与思维帽配方 |
+| `sis_i18n.lua` / `sis_assets.lua` | 界面语言及资源声明 |
 
-挖宝怪物池保留原来的6种，并加入14种有攻击能力的哈姆雷特小型生物，20种等概率抽取，不提高原有怪物事件概率或数量；排除无辜动物和大型生物。具体名单见 `mod/README.md`。铲子、风向标、船炮、火药、椰子炸弹及其他原版挖宝路径均应用新增掉落；金块保底按初始岛所有方式统一记录挖宝次数和实际出金情况。
+模组通过 `SIS.Add*PostInit` 显式注册海难回调，岛屿规则集中在 `sisland`，其他功能读取同一份世界状态。
 
-已删除 F 自动攻击跳过墙的功能。运行时按实际世界检查，仅海难生效。为支持启用了哈姆雷特兼容内容的海难存档，允许引擎在这两种内容包下加载；进入真正的哈姆雷特世界仍不启用玩法调整。
+## 检查
 
-赌博机岛使用赌博机所在的连通陆地判定，允许整岛登陆；不会开放其他岛或世界出口。关闭选项后，读档时会把停留在赌博机岛上的角色送回允许的安全位置。
+```powershell
+python -m pip install --target .tools/python lupa
+python tests/run_checks.py
+```
 
-蜘蛛巢原逻辑符合“至少一个”：已有一个巢在船炮射程内则不移动，否则最多搬一个。不是让每个巢都靠岸；船炮射程较远，小岛上可能有很多巢天然符合条件。关闭后不再搬动，已经随旧档保存的位置保持现状。
+本机原版脚本默认位于 `D:/soft/Steam/steamapps/common/dont_starve/data`，也可用 `DS_DATA_DIR` 指定。没有游戏源码时跳过相应集成检查。测试不会启动游戏或修改存档，图形显示和完整游玩仍需实机验证。
 
-“原版时间”不强制覆盖季节长度，也不修正原版浮点累加引起的季节延长；“70天”使用20/15/20/15天并保留原有的换季精度修正。默认沿用本 Mod 现有的70天。
+## 版本与存档
 
-金块保底对非奶奶（薇克巴顿）角色生效，包含船长。初始岛所有挖宝方式共用次数和实际出金记录：前4次均未出金块，第5次使用含3金块的原版预设；此前出过金块，即使用完也不触发。不检查容器或其他来源的金块，其他岛挖宝不计入。只在第五次判断一次；关闭时仍记录，重新开启不重置，也不补发已错过的保底。黄绿宝石倍率只影响幸运帽产生的宝藏，普通宝藏维持原样，概率达到上限时封顶。
+2.0清理了旧版本的个人挖宝记录迁移及历史标志，要求新档；这一版内的正常存读档、配置选择和已生成内容的恢复仍受支持。蜘蛛巢配置为不调整或至少1至5个，默认1个。其余玩法见 `mod/README.md`。
 
-## 本地测试与创意工坊上传
-
-将 `mod/` 内容复制到用于本地测试的 Mod 目录，在游戏设置中调整选项后重新进入海难世界。旧档需已有出生岛记录；首次使用请新建海难世界。上传创意工坊时选择 `mod/`，不要把整个工作区或 `tests/` 一同上传。GitHub 仓库保存整个工作区的源码、说明和测试，本地检查依赖 `.tools/` 已排除。
-
-自动检查覆盖配置、开关分支、海难隔离、宝藏概率、赌博机岛边界及存档、季节时序、蜘蛛巢搬动数量。游戏动画、界面显示与实机游玩仍需游戏内确认。
-
-## 中英文支持
-
-模组名称、简介、全部配置标签、选项说明、选项值和禁止登陆提示支持中英文。默认跟随游戏语言：中文使用中文，其他语言回退英文；也可在最上方“语言 / Language”中手动选择。保存后重新打开配置页刷新文字，重新进入世界应用游戏提示。首次启用 Mod 仍需按原版流程重启游戏。
-
-原版单机配置界面不展示 `hover` 说明，本 Mod 在两列配置下方展示当前选中项的详细说明。退格调试面板沿用英文和 ASCII 时间单位，以免原版调试字体显示方框；这不影响简介、配置和角色提示的语言切换。
-
-GitHub 仓库：[dungbeetlebear/starting-island-survival](https://github.com/dungbeetlebear/starting-island-survival)，已设为公有。
-
-## English
-
-Starting Island Survival is a single-player Don't Starve: Shipwrecked mod. Stay on your starting island or at sea, with optional access to the entire casino island. Other worlds and world exits remain blocked.
-
-Choose **Language → Auto / 中文 / English** in the mod configuration. Auto uses Chinese for Chinese game locales and English otherwise. Apply and reopen configuration to refresh its text; re-enter your world for gameplay messages. Enable the mod and restart the game when installing it for the first time. Descriptions, configuration labels, option help and landing restrictions are translated. The native Backspace debug panel retains English text and ASCII time units to avoid missing glyphs in the debug font.
-
-| Setting | Choices | Default |
-| --- | --- | --- |
-| Octopus trades | No daily limit / Vanilla limit | No daily limit for non-food items without freshness |
-| Gold guarantee | Guaranteed / Vanilla | Except Wickerbottom: fifth home-island excavation if the first four yielded no gold; all methods share history |
-| Casino landing | Blocked / Allowed | Blocked |
-| Gem chance | 1 / 1.5 / 2 / 3 / 4 / 5 / 10x | 2x; Lucky Hat yellow/green gems only |
-| Season length | Vanilla / 70-day year | 70 days: 20 Mild, 15 Hurricane, 20 Monsoon, 15 Dry |
-| Coastal nests | At least one / Unchanged | Ensure at least one den is in boat cannon range |
-| Alloy salvage | Off / On; one Alloy returns 4 Iron Ore | Off |
-| Fishbone vacuum | Allowed / Vanilla | Allowed |
-| Treasure monsters | Off / On; small Hamlet creatures capable of attacking | Off |
-| Town bandits | Off / On; native Hamlet rules | Off |
-| Town Hall mayor | Off / On; one mayor in each new player Town Hall | Off |
-| Plant loot | Off / On; Clippings and Light Bulbs, 1-2 each when selected | Off |
-| Shop horns | Off / On; Guardian's Horn and Hippopotamoose Antler | Off |
-
-All new optional features default to Off; Fishbone suction stays On. Hamlet extensions require installed Hamlet content. The engine may load the mod under the Hamlet compatibility pack so linked Shipwrecked saves work; gameplay remains restricted to actual Shipwrecked worlds. Bandits use the native Hamlet currency, city ground, nearby town-pig-house cover, time-of-day odds, stealing, escape and death cooldown rules, with an additional three-building threshold on the starting island, excluding Slanty Shanties. Their treasure always stays on the starting island. The treasure monster switch shares the original monster slots uniformly across 6 original and 14 attacking Hamlet creatures without increasing encounter frequency or count. Innocent wildlife and large creatures are excluded. New treasure loot applies to shovel, wind staff, cannon and explosive excavations. All home-island excavation methods share the gold-guarantee counter and actual gold-drop history.
-
-The `mod/` folder contains the complete Workshop mod. This repository also includes documentation and Lua 5.1 regression checks in `tests/`; local test dependencies are excluded. Only upload `mod/` to Steam Workshop. The original Steam installation is kept separate from this workspace.
-
-
-## 1.u 修复与复测
-
-修复风向标、船炮和爆炸等非玩家实体挖开宝藏时跳过新增掉落的问题；修复把内容包启用标志当作安装状态的问题，并允许游戏为哈姆雷特兼容的海难存档加载 Mod。怪物和植物材料仍分别受各自开关控制，默认值不变。
-
-将工作区 `mod/` 更新到本地测试目录后，完全退出并重启游戏，确认版本为 `1.u`；开启“挖宝哈姆雷特怪物”和“挖宝植物材料”，再使用先前的生成指令测试。已生成但尚未挖开的宝藏也会使用修复后的规则，无需重建世界。未安装哈姆雷特时，相关拓展不生效。
-
-
-## 1.v 室内兼容修复
-
-修复进入商店、住宅或市政厅后被独岛校验拉回室外，导致镜头仍留在空房间的问题。原版室内使用独立坐标区和 `GROUND.INTERIOR` 地面类型，现在从室外岛屿判定、出生岛收集和安全落点记录中排除；室内移动及读档正常保留。
-
-出门仍检查实际室外落点，禁止岛屿的出口会通过原版传送流程改为合法安全点，角色及随从一起移动；赌博机岛仅在允许登陆时可作为出口落点。更新本地测试目录并完全重启游戏，再进入原存档测试；本修复不要求重建世界。
-
-Version 1.v fixes players being pulled out of shops/houses while the camera remains indoors. Interior terrain is excluded from outdoor island membership, spawn-island collection and outdoor safe-point history. Native indoor movement and loading are preserved. Door exits still validate the outdoor destination, moving the player and followers together to a permitted safe point when necessary. Casino exits depend on the casino-landing setting. Fully restart after replacing the test mod; existing saves can be used.
-
-
-## 1.w 商店图片与资源依赖
-
-补齐海难中动态创建哈姆雷特商店时缺少的资源预加载：两套原版背包图集及对应 `ATLAS_BUILD`（商品、价格牌、置物架图案）、原版展示台／置物架／房门依赖，以及哈姆雷特音效包与音效数据。背包图标可见不代表展示台需要的动画图集已加载，二者分别处理。保持原版选图、商品、价格与补货逻辑。
-
-更新本地测试目录后完全退出并重启游戏，再进入原存档。已有商店及货架会按原版读档流程重绘图片，不需拆店或重建世界。新增资源检查直接执行原版商品／价格／货架绘图及商店读档逻辑，确认其引用的两套图集和图片符号实际存在；原有房间、随从、挖宝、开关及市长检查继续通过。当前18组检查不能代替游戏引擎内的图片显示及稳定性复测。此前闪退日志没有留下可定位的Lua错误堆栈，尚未确认闪退根因。
-
-Version 1.w explicitly preloads both native inventory atlases and their animation builds for shop product/price signs and shelves, the native display/shelf/door prefabs, and Hamlet sound dependencies in Shipwrecked. Native product selection, prices, restocking and saved stock are preserved. Fully restart after updating the test mod; existing shops redraw their icons through native loading without rebuilding. Eighteen logic/integration groups pass, including native drawing bindings; engine rendering and the earlier crash still require in-game verification.
-
-## 1.x 本岛挖宝保底
-
-金块保底排除奶奶，船长可以触发；初始岛所有挖宝方式共用次数和实际出金记录，并随世界保存。前4次都未出金，第5次使用含3金块的原版预设；此前出过金块，即使用完也不触发。不扫描容器。关闭时继续记录，已过第五次不补发。旧档迁移已保存的个人挖宝次数和出金记录，旧版未记录的间接挖宝无法还原。
-
-Version 1.x excludes Wickerbottom rather than Woodlegs from the gold guarantee. All home-island excavation methods share saved world history. If the first four excavations yielded no gold, the fifth uses a vanilla preset with 3 nuggets. Earlier treasure gold prevents the guarantee even if spent. Containers are not scanned. History is recorded while disabled; no retroactive grant. Old saves migrate their recorded personal count and gold history; previously unrecorded indirect excavations cannot be reconstructed.
+源码与讨论：https://github.com/dungbeetlebear/starting-island-survival

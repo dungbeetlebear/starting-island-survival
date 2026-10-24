@@ -36,7 +36,7 @@ function KnownModIndex:SaveConfigurationOptions(callback,name,settings)
     callback()
     self:LoadModConfigurationOptions(name)
 end
-WORLD={prefab=MODE,components={sisland={ready=true,
+WORLD={prefab=MODE,components={sisland={ready=true,treasure_digs=0,treasure_gold=false,
     IsHome=function(_,x,z) return x==0 end, IsInterior=function() return false end}}}
 NOW=0
 GetTime=function() return NOW end

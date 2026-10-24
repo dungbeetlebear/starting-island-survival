@@ -2,10 +2,7 @@ local G = GLOBAL
 G.require("map/treasurehunt")
 local hat_depth, loot_depth = 0, 0
 local dig_context
-local function active()
-    local w = G.GetWorld()
-    return w and w.components.sisland
-end
+local active = SIS.GetIsland
 local function scoped(fn, enter, leave, ...)
     enter()
     local result = {G.pcall(fn,...)}
@@ -13,7 +10,7 @@ local function scoped(fn, enter, leave, ...)
     if not result[1] then G.error(result[2]) end
     return G.unpack(result,2)
 end
-AddPrefabPostInit("woodlegshat",function(hat)
+SIS.AddPrefabPostInit("woodlegshat",function(hat)
     local fuel = hat.components.fueled
     local old = fuel and fuel.sectionfn
     if old then
@@ -23,7 +20,7 @@ AddPrefabPostInit("woodlegshat",function(hat)
         end
     end
 end)
-AddPrefabPostInit("buriedtreasure",function(t)
+SIS.AddPrefabPostInit("buriedtreasure",function(t)
     t._sis_hat = hat_depth>0
     local save, load = t.OnSave, t.OnLoad
     t.OnSave = function(inst,data)
@@ -48,11 +45,7 @@ AddPrefabPostInit("buriedtreasure",function(t)
             local track=c.ready and c:IsHome(x,z)
             local player=G.GetPlayer()
             local digs=c.treasure_digs
-            local gold=c.treasure_gold or false
-            if digs==nil then
-                digs=player and player._sis_treasure_digs or 0
-                gold=player and player._sis_treasure_gold or false
-            end
+            local gold=c.treasure_gold
             -- Choose the original preset with three guaranteed nuggets; do not
             -- tack an extra gold item onto an otherwise unrelated preset.
             if track and SIS_CONFIG.gold_guarantee and digs==4 and player
@@ -69,7 +62,7 @@ AddPrefabPostInit("buriedtreasure",function(t)
             SIS_DUG_TREASURE_DEPTH=depth
             if not result[1] then G.error(result[2]) end
             if track and context.generated then
-                c.treasure_digs=(c.treasure_digs or digs)+1
+                c.treasure_digs=c.treasure_digs+1
                 c.treasure_gold=c.treasure_gold or gold or context.gold
             end
             return G.unpack(result,2)

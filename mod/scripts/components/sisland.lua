@@ -5,8 +5,7 @@ local Island = Class(function(self, inst)
     self.casino_tiles = {}
     self.allow_casino = false
     self.ready = false
-    -- Nil until the first excavation allows migration of old personal history.
-    self.treasure_digs = nil
+    self.treasure_digs = 0
     self.treasure_gold = false
     self.inst:StartUpdatingComponent(self)
 end)
@@ -101,7 +100,7 @@ function Island:GetSafePoint(player,sea)
         return self.home
     end
     if self.seahome and self:IsWater(self.seahome[1],self.seahome[2]) then return self.seahome end
-    -- Older saves have no cached coast. Search their frozen home tiles once.
+    -- Find another coast if the cached water tile is no longer usable.
     local hx,hz=self.inst.Map:GetTileCoordsAtPoint(self.home[1],0,self.home[2])
     for tile in pairs(self.tiles) do
         local tx,tz=string.match(tile,"^(%-?%d+):(%-?%d+)$")
@@ -219,7 +218,7 @@ function Island:OnLoad(data)
         self.tiles, self.home, self.ready = data.tiles, data.home, true
         self.seahome=data.seahome
         self.casino_tiles=data.casino_tiles or {}
-        self.treasure_digs=data.treasure_digs
+        self.treasure_digs=data.treasure_digs or 0
         self.treasure_gold=data.treasure_gold or false
         self:RefreshCasinoIslands()
     end

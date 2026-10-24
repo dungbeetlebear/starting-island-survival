@@ -47,7 +47,7 @@ end
 -- Preserve native staff costs, four-ore smelting ratio and one-item stack
 -- handling, using a deconstruction-only recipe rather than a craftable recipe.
 if SIS_HAS_HAMLET and SIS_CONFIG.alloy_deconstruction then
-    AddPrefabPostInit("shipwrecked",function()
+    SIS.AddPrefabPostInit("shipwrecked",function()
         if not G.GetRecipe("alloy") then
             G.DeconstructRecipe("alloy",{G.Ingredient("iron",4)})
             G.GetAllRecipes(true)
@@ -56,15 +56,24 @@ if SIS_HAS_HAMLET and SIS_CONFIG.alloy_deconstruction then
 end
 
 if SIS_HAS_HAMLET then
-    AddPrefabPostInit("thunderbird",function(e)
+    SIS.AddPrefabPostInit("thunderbird",function(e)
         local function uncharge(inst)
             inst.cooling_down=true
             inst.charging=false
             inst.lightning_target=nil
             inst.DoLightning=function() end
             inst.special_action=function() return false end
-            if not inst._sis_no_charge_events then
-                inst._sis_no_charge_events=true
+            if not inst._sis_no_lightning_applied then
+                inst._sis_no_lightning_applied=true
+                local spawn=inst.SpawnChild
+                inst.SpawnChild=function(self,prefab,...)
+                    local child=spawn(self,prefab,...)
+                    if prefab=="thunderbird_fx" and child then
+                        child:CancelAllPendingTasks()
+                        child:Hide()
+                    end
+                    return child
+                end
                 local push=inst.PushEvent
                 inst.PushEvent=function(self,event,...)
                     if event=="start_charging" then return end
@@ -72,10 +81,10 @@ if SIS_HAS_HAMLET then
                 end
             end
             if inst.Light then inst.Light:Enable(false) end
-            -- Native FX is scheduled during prefab creation, before this task.
-            inst:DoTaskInTime(.2,function()
-                if inst.fx then inst.fx:Remove(); inst.fx=nil end
-            end)
+            if inst.fx then
+                inst.fx:CancelAllPendingTasks()
+                inst.fx:Hide()
+            end
         end
         local save,load=e.OnSave,e.OnLoad
         e.OnSave=function(inst,data,...)
@@ -97,7 +106,7 @@ if SIS_HAS_HAMLET then
 end
 
 if SIS_HAS_HAMLET and SIS_CONFIG.townhall_mayor then
-    AddComponentPostInit("interiorspawner",function(c)
+    SIS.AddComponentPostInit("interiorspawner",function(c)
         local create=c.CreateRoom
         c.CreateRoom=function(self,interior,width,height,depth,dungeon,room,props,...)
             local prefix="pig_shop_cityhall_player"
@@ -119,7 +128,7 @@ if SIS_HAS_HAMLET and SIS_CONFIG.townhall_mayor then
 end
 
 if SIS_HAS_HAMLET and SIS_CONFIG.shop_horns then
-    AddComponentPostInit("shopinterior",function(c)
+    SIS.AddComponentPostInit("shopinterior",function(c)
         local product=c.GetNewProduct
         local stock=G.require("prefabs/pig_shop_defs").SHOPTYPES
         c.GetNewProduct=function(self,shoptype,...)

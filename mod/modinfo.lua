@@ -6,7 +6,7 @@ sis_i18n = {
         config = {
             language = {
                 label = "语言 / Language",
-                hover = "选择跟随游戏、中文或英文。保存后重新打开配置页刷新文字，进入世界后应用游戏提示。退格调试面板使用英文，避免原版调试字体缺字。",
+                hover = "选择模组界面及游戏提示的语言。退格倒计时面板使用英文。",
                 options = {"跟随游戏 / Auto", "中文", "English"},
             },
             octopus_no_cooldown = {
@@ -21,7 +21,7 @@ sis_i18n = {
             },
             casino_landing = {
                 label = "赌博机岛登陆",
-                hover = "允许时可登陆赌博机所在的整座岛；其他岛屿仍受独岛限制。关闭后，岛上的角色读档时返回允许的安全位置。",
+                hover = "允许登陆赌博机所在的整座岛，其他岛屿仍不可登陆。",
                 options = {"不可登陆", "可以登陆"},
             },
             gem_multiplier = {
@@ -36,12 +36,12 @@ sis_i18n = {
             },
             coastal_spiderden = {
                 label = "蜘蛛巢靠岸",
-                hover = "全图至少一个巢在船炮射程内。已有符合条件的巢时不搬动，否则最多移动一个；关闭不复原旧档位置。",
-                options = {"至少一个", "不调整"},
+                hover = "保证全图至少指定数量的蜘蛛巢在船炮射程内。已有足够数量时不搬动，否则只移动不足的数量，不额外生成巢。",
+                options = {"不调整", "至少1个", "至少2个", "至少3个", "至少4个", "至少5个"},
             },
             alloy_deconstruction = {
                 label = "铸铁块拆解",
-                hover = "允许拆解法杖将每个铸铁块分解为4个铁矿石，保留原版法杖消耗；不添加可制作配方。需要哈姆雷特内容。",
+                hover = "拆解法杖可以将一个铸铁块分解为4个铁矿石。需要哈姆雷特内容。",
                 options = {"关闭", "开启"},
             },
             fishbone_vacuum = {
@@ -56,17 +56,17 @@ sis_i18n = {
             },
             island_bandits = {
                 label = "城镇盗贼猪人",
-                hover = "初始岛至少3栋住宅或商店，歪斜小木屋不计数。沿用哈姆雷特钱币、城市地皮、附近城镇猪屋、昼夜概率和冷却规则；宝藏仅在初始岛。需要哈姆雷特。",
+                hover = "初始岛至少3栋城镇建筑，歪斜小木屋不计。沿用哈姆雷特的钱币、城市地皮、猪屋掩体、昼夜概率和冷却规则；宝藏只在初始岛。需要哈姆雷特。",
                 options = {"关闭", "开启"},
             },
             townhall_mayor = {
                 label = "市政厅自带市长",
-                hover = "新建玩家市政厅的室内自带一位市长，随房间保存，读档不重复生成；不补发旧市政厅。需要哈姆雷特内容。",
+                hover = "新建玩家市政厅的室内自带一位市长。需要哈姆雷特内容。",
                 options = {"关闭", "开启"},
             },
             treasure_materials = {
                 label = "挖宝植物材料",
-                hover = "铲子、风向标、船炮和爆炸挖宝均生效。在含纸张或绳索的随机资源池加入树篱修剪物和荧光果，抽中时各1至2个；赌博机直接奖励不变。需要哈姆雷特。",
+                hover = "部分资源宝藏有机会获得树篱修剪物和荧光果，抽中时各1至2个。支持各种挖宝方式。需要哈姆雷特。",
                 options = {"关闭", "开启"},
             },
             shop_horns = {
@@ -86,7 +86,7 @@ sis_i18n = {
         config = {
             language = {
                 label = "语言 / Language",
-                hover = "Use the game language, Chinese or English. Apply and reopen this menu to refresh text; re-enter the world for gameplay messages. Debug timers stay in English to avoid missing font glyphs.",
+                hover = "Choose the language of the mod interface and gameplay messages. Backspace timers use English.",
                 options = {"Auto / 跟随游戏", "中文", "English"},
             },
             octopus_no_cooldown = {
@@ -101,7 +101,7 @@ sis_i18n = {
             },
             casino_landing = {
                 label = "Casino landing",
-                hover = "Allow landing anywhere on the slot machine's island. Other islands remain blocked. Disable to return players on that island to a permitted safe point on load.",
+                hover = "Allow landing anywhere on the slot machine's island. Other islands remain blocked.",
                 options = {"Blocked", "Allowed"},
             },
             gem_multiplier = {
@@ -116,12 +116,12 @@ sis_i18n = {
             },
             coastal_spiderden = {
                 label = "Coastal nests",
-                hover = "Ensure at least one spider den is in boat cannon range. Move none if one already qualifies; otherwise move at most one. Disabling does not undo saved positions.",
-                options = {"At least one", "Unchanged"},
+                hover = "Ensure the selected number of existing spider dens are in boat cannon range. Move only the shortfall; do not create extra dens.",
+                options = {"Unchanged", "At least 1", "At least 2", "At least 3", "At least 4", "At least 5"},
             },
             alloy_deconstruction = {
                 label = "Alloy salvage",
-                hover = "Deconstruction Staff: one Alloy returns 4 Iron Ore, with vanilla staff costs. Adds no crafting recipe. Hamlet content required.",
+                hover = "Deconstruction Staff: one Alloy returns 4 Iron Ore. Hamlet content required.",
                 options = {"Off", "On"},
             },
             fishbone_vacuum = {
@@ -136,17 +136,17 @@ sis_i18n = {
             },
             island_bandits = {
                 label = "Town bandits",
-                hover = "Require 3+ home-island homes/shops, excluding Slanty Shanties. Use Hamlet's money, city ground, nearby town-pig-house cover, day/night odds and cooldown rules. Treasure stays on the starting island. Hamlet required.",
+                hover = "Require 3+ home-island town buildings, excluding Slanty Shanties. Use Hamlet's money, city ground, pig-house cover, day/night odds and cooldowns. Treasure stays on the starting island. Hamlet required.",
                 options = {"Off", "On"},
             },
             townhall_mayor = {
                 label = "Town Hall mayor",
-                hover = "New player Town Halls include one indoor mayor, saved with the room. No duplicate on reload or retrofit of old halls. Hamlet content required.",
+                hover = "New player Town Halls include one indoor mayor. Hamlet content required.",
                 options = {"Off", "On"},
             },
             treasure_materials = {
                 label = "Plant loot",
-                hover = "Shovels, wind staffs, cannons and explosions: add Clippings and Light Bulbs to treasure pools with Papyrus/Rope, 1-2 each when selected. Direct slot-machine prizes unchanged. Hamlet required.",
+                hover = "Some resource treasures can contain Clippings and Light Bulbs, 1-2 each when selected. All excavation methods supported. Hamlet required.",
                 options = {"Off", "On"},
             },
             shop_horns = {
@@ -169,7 +169,7 @@ local text = sis_i18n[chinese and "zh" or "en"]
 name = text.name
 description = text.description
 author = "Starting Island Survival"
-version = "1.x"
+version = "2.0"
 api_version = 6
 priority = -10
 dont_starve_compatible = false
@@ -185,7 +185,7 @@ icon_atlas = "modicon.xml"
 icon = "modicon.tex"
 server_filter_tags = {"shipwrecked", "starting island", "single island", "独岛生存"}
 
--- Stable names, data and defaults preserve settings from previous versions.
+-- Configuration values and their default choices.
 configuration_options = {
     {name="language", default="auto", options={{data="auto"}, {data="zh"}, {data="en"}}},
     {name="octopus_no_cooldown", default=true, options={{data=true}, {data=false}}},
@@ -193,7 +193,7 @@ configuration_options = {
     {name="casino_landing", default=false, options={{data=false}, {data=true}}},
     {name="gem_multiplier", default=2, options={{data=1}, {data=1.5}, {data=2}, {data=3}, {data=4}, {data=5}, {data=10}}},
     {name="season_length", default="70_days", options={{data="vanilla"}, {data="70_days"}}},
-    {name="coastal_spiderden", default=true, options={{data=true}, {data=false}}},
+    {name="coastal_spiderden", default=1, options={{data=0}, {data=1}, {data=2}, {data=3}, {data=4}, {data=5}}},
     {name="alloy_deconstruction", default=false, options={{data=false}, {data=true}}},
     {name="fishbone_vacuum", default=true, options={{data=true}, {data=false}}},
     {name="hamlet_treasure_creatures", default=false, options={{data=false}, {data=true}}},

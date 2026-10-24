@@ -1,15 +1,12 @@
 local G=GLOBAL
 if not SIS_CONFIG.octopus_no_cooldown then return end
-local function active()
-    local w=G.GetWorld()
-    return w and w.components.sisland
-end
+local active = SIS.GetIsland
 local function permanent(item)
     return item and not item.components.perishable and not item.components.edible
 end
 
 -- The GIVE action must follow both the animation lock and the food allowance.
-AddComponentPostInit("tradable",function(c)
+SIS.AddComponentPostInit("tradable",function(c)
     local old=c.CollectUseActions
     c.CollectUseActions=function(self,doer,target,actions,...)
         old(self,doer,target,actions,...)
@@ -25,7 +22,7 @@ AddComponentPostInit("tradable",function(c)
     end
 end)
 
-AddPrefabPostInit("octopusking",function(inst)
+SIS.AddPrefabPostInit("octopusking",function(inst)
     local t=inst.components.trader
     local accept,canaccept,onaccept=t.AcceptGift,t.CanAccept,t.onaccept
     local save,load=t.OnSave,t.OnLoad
@@ -81,7 +78,6 @@ AddPrefabPostInit("octopusking",function(inst)
         local no_daily_cooldown=permanent(item)
         if not no_daily_cooldown then food_allowed=false end
         busy=true
-        e._sis_trade_busy=true
         clear_sleep()
         -- Keep every original sound, animation and the 109-frame chest throw.
         -- Only replace the five-second daily-sleep task, never the reward task.
@@ -94,7 +90,6 @@ AddPrefabPostInit("octopusking",function(inst)
                 return
             end
             busy=false
-            e._sis_trade_busy=false
             e.happy=false
             e.endhappytask=nil
             if no_daily_cooldown or food_allowed then
@@ -111,16 +106,14 @@ AddPrefabPostInit("octopusking",function(inst)
     -- Preserve them while idle; while busy, update only the food daily gate.
     local w=G.GetWorld()
     local function phase(event,allowed)
-        local callbacks={}
         local listening=inst.event_listening and inst.event_listening[event]
-        for _,fn in ipairs(listening and listening[w] or {}) do callbacks[#callbacks+1]=fn end
-        for _,fn in ipairs(callbacks) do inst:RemoveEventCallback(event,fn,w) end
+        -- The prefab registers its phase callback before any mod initializers.
+        local native=listening and listening[w] and listening[w][1]
+        if not native then return end
+        inst:RemoveEventCallback(event,native,w)
         inst:ListenForEvent(event,function(source,data)
-            if active() then
-                food_allowed=allowed
-                if busy then return end
-            end
-            for _,fn in ipairs(callbacks) do fn(source,data) end
+            food_allowed=allowed
+            if not busy then native(source,data) end
         end,w)
     end
     if w then phase("daytime",true);phase("nighttime",false) end

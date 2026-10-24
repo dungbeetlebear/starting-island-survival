@@ -1,10 +1,7 @@
 local G=GLOBAL
-local function active()
-    local w=G.GetWorld()
-    return w and w.components.sisland
-end
+local active = SIS.GetIsland
 
-AddPlayerPostInit(function(p)
+SIS.AddPlayerPostInit(function(p)
     if not active() or p.prefab=="woodlegs" then return end
     -- Let the original new-world inventory grant run once. Never give items
     -- from a periodic task or OnLoad, which would duplicate them on every load.
@@ -31,16 +28,4 @@ AddPlayerPostInit(function(p)
     boat.sortkey=2
     G.GetAllRecipes(true)
 
-    -- Retain old personal history for migration into the island-wide counter.
-    local save,load=p.OnSave,p.OnLoad
-    p.OnSave=function(inst,data,...)
-        if save then save(inst,data,...) end
-        data.sis_treasure_digs=inst._sis_treasure_digs or 0
-        data.sis_treasure_gold=inst._sis_treasure_gold or false
-    end
-    p.OnLoad=function(inst,data,...)
-        inst._sis_treasure_digs=data and data.sis_treasure_digs or 0
-        inst._sis_treasure_gold=data and data.sis_treasure_gold or false
-        if load then return load(inst,data,...) end
-    end
 end)

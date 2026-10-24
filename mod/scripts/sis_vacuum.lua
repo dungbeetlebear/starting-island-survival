@@ -1,5 +1,6 @@
 local G=GLOBAL
-AddPrefabPostInit("twister",function(inst)
+if not SIS_CONFIG.fishbone_vacuum then return end
+SIS.AddPrefabPostInit("twister",function(inst)
     local v=inst.components.vacuum
     if not v then return end
     local old=v.OnUpdate

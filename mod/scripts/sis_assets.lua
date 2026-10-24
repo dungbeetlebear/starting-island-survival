@@ -1,8 +1,4 @@
--- Shipwrecked does not preload Porkland's shop/display dependencies. A normal
--- inventory icon is not an animation symbol: shelves and price signs require
--- ATLAS_BUILD for BOTH native inventory atlases before their first override.
--- Pin the native resources to this mod's load/unload lifetime; do not rewrite
--- GetInventoryItemAtlas or change shop items, prices, saves or restock timers.
+-- Shop signs and shelves use animation symbols from both inventory atlases.
 Assets=Assets or {}
 for _,file in ipairs({"images/inventoryimages.xml","images/inventoryimages_2.xml"}) do
     Assets[#Assets+1]=Asset("ATLAS",file)
