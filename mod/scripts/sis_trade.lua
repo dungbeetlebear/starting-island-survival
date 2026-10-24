@@ -1,4 +1,5 @@
 local G=GLOBAL
+if not SIS_CONFIG.octopus_no_cooldown then return end
 local function active()
     local w=G.GetWorld()
     return w and w.components.sisland

@@ -1,7 +1,8 @@
 local G = GLOBAL
+modimport("scripts/sis_config.lua")
 local function island()
     local w = G.GetWorld()
-    return w and w.components.sisland
+    return w and w.prefab == "shipwrecked" and w.components.sisland
 end
 local function point(e)
     if e and e.Transform then
@@ -14,7 +15,9 @@ local function forbidden(pos)
     return c and pos and c:IsForbidden(pos.x, pos.z)
 end
 local function reject(p)
-    if p and p.HUD and p.components.talker then p.components.talker:Say("只能登陆出生岛。") end
+    if p and p.HUD and p.components.talker then
+        p.components.talker:Say(SIS_CONFIG.casino_landing and "只能登陆出生岛和赌博机岛。" or "只能登陆出生岛。")
+    end
 end
 local world_exits={}
 for _,name in ipairs({"volcano","volcano_exit","shipwrecked_entrance","shipwrecked_exit","portal_shipwrecked",
@@ -26,15 +29,28 @@ local function exit(e) return e and world_exits[e.prefab] end
 
 AddPrefabPostInit("shipwrecked", function(w)
     w:AddComponent("sisland")
+    w.components.sisland.allow_casino = SIS_CONFIG.casino_landing
     w:DoTaskInTime(0, function()
         local s = w.components.seasonmanager
-        if s then
+        if s and SIS_CONFIG.season_length == "70_days" then
             s:SetMildLength(20); s:SetWetLength(15)
             s:SetGreenLength(20); s:SetDryLength(15)
             s.seasonmode = "tropical"
         end
     end)
 end)
+
+if SIS_CONFIG.casino_landing then
+    AddPrefabPostInit("slotmachine", function(e)
+        e:DoTaskInTime(0, function()
+            local c = island()
+            if c and e:IsValid() then
+                local x,y,z = e.Transform:GetWorldPosition()
+                c:RegisterCasinoIsland(x,z)
+            end
+        end)
+    end)
+end
 
 -- The original tropical basehassler uses 0.67 and saves that probability.
 -- Apply the rule when created, when restored, and when settings override it.
@@ -75,7 +91,7 @@ AddComponentPostInit("seasonmanager", function(s)
     if not s.IsWetSeason then return end
     local old=s.OnDayComplete
     s.OnDayComplete=function(self,...)
-        if island() and self.seasonmode=="tropical" then
+        if SIS_CONFIG.season_length == "70_days" and island() and self.seasonmode=="tropical" then
             local len=self:GetSeasonLength()
             -- 15 additions of 1/15 can be 0.9999999999999999. Let the
             -- original transition run on day 15, with all its normal events.
@@ -355,8 +371,7 @@ end)
 
 modimport("scripts/sis_trade.lua")
 modimport("scripts/sis_treasure.lua")
-modimport("scripts/sis_spiders.lua")
+if SIS_CONFIG.coastal_spiderden then modimport("scripts/sis_spiders.lua") end
 modimport("scripts/sis_timers.lua")
-modimport("scripts/sis_attack.lua")
 modimport("scripts/sis_characters.lua")
 modimport("scripts/sis_vacuum.lua")

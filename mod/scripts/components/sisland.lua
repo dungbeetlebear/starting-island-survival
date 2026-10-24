@@ -2,6 +2,8 @@
 local Island = Class(function(self, inst)
     self.inst = inst
     self.tiles = {}
+    self.casino_tiles = {}
+    self.allow_casino = false
     self.ready = false
     self.inst:StartUpdatingComponent(self)
 end)
@@ -17,7 +19,9 @@ end
 function Island:IsAllowed(x, z)
     if not self.ready then return false end
     local tx, tz = self.inst.Map:GetTileCoordsAtPoint(x, 0, z)
-    return self.tiles[key(tx, tz)] == true and self:IsLand(x, z)
+    local k = key(tx, tz)
+    return (self.tiles[k] == true or (self.allow_casino and self.casino_tiles[k] == true))
+        and self:IsLand(x, z)
 end
 
 function Island:IsForbidden(x, z)
@@ -76,11 +80,14 @@ function Island:GetSafePoint(player,sea)
     end
 end
 
-function Island:Initialize(x, z)
-    if not self:IsLand(x, z) then return false end
+-- Flood only connected land; never cross water or merge the home whitelist
+-- with the optional casino whitelist.
+function Island:CollectIslandTiles(x, z)
+    if not self:IsLand(x, z) then return nil end
     local m = self.inst.Map
     local sx, sy, sz = m:GetTileCenterPoint(x, 0, z)
     local q, seen, head = {{sx, sz}}, {}, 1
+    local tiles, seahome = {}, nil
     local dirs = {{4,0},{-4,0},{0,4},{0,-4}}
     while head <= #q do
         local p = q[head]
@@ -90,19 +97,45 @@ function Island:Initialize(x, z)
         if not seen[k] then
             seen[k] = true
             if self:IsLand(p[1], p[2]) then
-                self.tiles[k] = true
+                tiles[k] = true
                 for _, d in ipairs(dirs) do
                     q[#q+1] = {p[1]+d[1], p[2]+d[2]}
                 end
-            elseif not self.seahome and self:IsWater(p[1],p[2]) then
-                self.seahome={p[1],p[2]}
+            elseif not seahome and self:IsWater(p[1],p[2]) then
+                seahome={p[1],p[2]}
             end
         end
     end
-    self.home = {sx, sz}
+    return tiles, {sx, sz}, seahome
+end
+
+function Island:Initialize(x, z)
+    local tiles, home, seahome = self:CollectIslandTiles(x, z)
+    if not tiles then return false end
+    self.tiles, self.home, self.seahome = tiles, home, seahome
     self.ready = true
+    self:RefreshCasinoIslands()
     print("[SingleIsland] Spawn island locked, tiles:", self:CountTiles())
     return true
+end
+
+function Island:RegisterCasinoIsland(x, z)
+    if not self.allow_casino then return end
+    local tx, tz = self.inst.Map:GetTileCoordsAtPoint(x, 0, z)
+    if self.casino_tiles[key(tx, tz)] then return end
+    local tiles = self:CollectIslandTiles(x, z)
+    for k in pairs(tiles or {}) do self.casino_tiles[k] = true end
+end
+
+function Island:RefreshCasinoIslands()
+    if not self.allow_casino then return end
+    for _, e in pairs(Ents) do
+        if e.prefab == "slotmachine" and e:IsValid() then
+            local x, y, z = e.Transform:GetWorldPosition()
+            self:RegisterCasinoIsland(x, z)
+        end
+    end
+    self.casino_scan_complete = true
 end
 
 function Island:CountTiles()
@@ -112,7 +145,13 @@ function Island:CountTiles()
 end
 
 function Island:OnUpdate()
-    if self.ready then return end
+    if self.ready then
+        -- Includes machines restored after the world component's OnLoad.
+        if self.allow_casino and not self.casino_scan_complete then
+            self:RefreshCasinoIslands()
+        end
+        return
+    end
     -- Spawnpoint exists during a new world's initial load, but does not persist.
     for _, e in pairs(Ents) do
         if e.prefab == "spawnpoint" then
@@ -132,13 +171,17 @@ function Island:OnUpdate()
 end
 
 function Island:OnSave()
-    if self.ready then return {tiles=self.tiles, home=self.home, seahome=self.seahome} end
+    if self.ready then
+        return {tiles=self.tiles, home=self.home, seahome=self.seahome, casino_tiles=self.casino_tiles}
+    end
 end
 
 function Island:OnLoad(data)
     if data and data.tiles and data.home then
         self.tiles, self.home, self.ready = data.tiles, data.home, true
         self.seahome=data.seahome
+        self.casino_tiles=data.casino_tiles or {}
+        self:RefreshCasinoIslands()
     end
 end
 
