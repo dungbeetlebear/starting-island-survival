@@ -1,5 +1,6 @@
 local G = GLOBAL
 modimport("scripts/sis_config.lua")
+modimport("scripts/sis_i18n.lua")
 local function island()
     local w = G.GetWorld()
     return w and w.prefab == "shipwrecked" and w.components.sisland
@@ -16,7 +17,7 @@ local function forbidden(pos)
 end
 local function reject(p)
     if p and p.HUD and p.components.talker then
-        p.components.talker:Say(SIS_CONFIG.casino_landing and "只能登陆出生岛和赌博机岛。" or "只能登陆出生岛。")
+        p.components.talker:Say(SIS_Text(SIS_CONFIG.casino_landing and "home_casino_only" or "home_only"))
     end
 end
 local world_exits={}

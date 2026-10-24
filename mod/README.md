@@ -1,4 +1,4 @@
-# 初始岛生存（单机海难）1.r
+# 初始岛生存（单机海难）1.s
 
 首次使用请新建海难世界。出生岛记录、最近的安全位置和挖宝记录随存档保存。
 
@@ -8,6 +8,7 @@
 
 | 设置 | 可选项 | 默认 |
 | --- | --- | --- |
+| 语言 / Language | 跟随游戏 / 中文 / English | 跟随游戏 |
 | 章鱼王非食物交易 | 无每日冷却 / 原版冷却 | 无每日冷却 |
 | 挖宝金块保底 | 有保底 / 无保底 | 有保底 |
 | 赌博机岛登陆 | 不可登陆 / 可以登陆 | 不可登陆 |
@@ -16,6 +17,8 @@
 | 蜘蛛巢靠岸 | 至少一个 / 不调整 | 至少一个 |
 
 修改设置后重新进入世界生效。“原版时间”保留原版换季时序及世界季节设置；关闭蜘蛛巢调整不会复原旧档已保存的位置。金块保底关闭时仍记录挖宝历史，重新开启不会重置次数或补发已错过的第五次保底。
+
+语言选择作用于模组名称、简介、配置及禁止登陆提示。保存后重新打开配置页可刷新配置文字；新启用 Mod 时需按原版流程重启。配置右栏显示当前选中项的中英文说明。退格调试面板保留英文，以避免原版调试字体缺字。
 
 ## 独岛限制
 
@@ -50,4 +53,14 @@
 
 海妖冷却归零后仍需满足原版深海拖网条件。首雨时间为预计值。源码逻辑检查不替代完整实机游玩验证。
 
-1.r：新增上述六项设置及赌博机岛登陆例外；移除 F 自动攻击跳过墙；兼容声明及运行时检查限定为海难世界。
+1.s：新增跟随游戏／中文／English 语言选项，中英文名称、简介、配置、详细说明和禁止登陆提示；保存配置后刷新模组简介，并在配置右栏显示选中项的说明。
+
+1.r：新增六项玩法设置及赌博机岛登陆例外；移除 F 自动攻击跳过墙；兼容声明及运行时检查限定为海难世界。
+
+## English
+
+Single-player Shipwrecked only. Choose **Language → Auto / 中文 / English** in mod configuration. Auto follows Chinese game locales and falls back to English for other languages. Apply and reopen configuration to update its text; re-enter your world for gameplay messages. Enable the mod and restart the game when first installing it.
+
+Configuration defaults: unlimited daily Octopus King trades for non-food items without freshness; fifth-dig gold guarantee for non-Woodlegs; casino landing blocked; 2x Lucky Hat yellow/green gem chance; a 70-day year (20/15/20/15); at least one spider den within boat cannon range. Existing gameplay settings carry over unchanged. Disabling coastal nests does not undo saved positions. Ordinary treasure loot is unaffected by the gem multiplier.
+
+The native Backspace debug panel keeps English labels and ASCII time units to avoid missing debug-font glyphs. The mod's description, configuration and landing messages support both Chinese and English. The F-key wall-skipping modification has been removed.

@@ -1,6 +1,6 @@
 # 初始岛生存 Mod 工作区
 
-- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.r`。
+- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.s`。
 - `tests/`：逻辑回归检查，随 GitHub 仓库保存，不需要上传创意工坊。
 - 已保留原发布版的 Git 基线，便于查看本次修改和回退。
 - Steam 原目录未改动。后续继续编辑本工作区的 `mod/`。
@@ -9,6 +9,7 @@
 
 | 设置 | 选项 | 默认 |
 | --- | --- | --- |
+| 语言 / Language | 跟随游戏 / 中文 / English | 跟随游戏 |
 | 章鱼王非食物交易 | 无每日冷却 / 原版冷却 | 无每日冷却 |
 | 挖宝金块保底 | 有保底 / 无保底 | 有保底 |
 | 赌博机岛登陆 | 不可登陆 / 可以登陆 | 不可登陆 |
@@ -31,3 +32,28 @@
 将 `mod/` 内容复制到用于本地测试的 Mod 目录，在游戏设置中调整选项后重新进入海难世界。旧档需已有出生岛记录；首次使用请新建海难世界。上传创意工坊时选择 `mod/`，不要把整个工作区或 `tests/` 一同上传。GitHub 仓库保存整个工作区的源码、说明和测试，本地检查依赖 `.tools/` 已排除。
 
 自动检查覆盖配置、开关分支、海难隔离、宝藏概率、赌博机岛边界及存档、季节时序、蜘蛛巢搬动数量。游戏动画、界面显示与实机游玩仍需游戏内确认。
+
+## 中英文支持
+
+模组名称、简介、全部配置标签、选项说明、选项值和禁止登陆提示支持中英文。默认跟随游戏语言：中文使用中文，其他语言回退英文；也可在最上方“语言 / Language”中手动选择。保存后重新打开配置页刷新文字，重新进入世界应用游戏提示。首次启用 Mod 仍需按原版流程重启游戏。
+
+原版单机配置界面不展示 `hover` 说明，本 Mod 使用配置页空白的右栏展示当前选中项的详细说明。退格调试面板沿用英文和 ASCII 时间单位，以免原版调试字体显示方框；这不影响简介、配置和角色提示的语言切换。
+
+GitHub 仓库：[dungbeetlebear/starting-island-survival](https://github.com/dungbeetlebear/starting-island-survival)，已设为公有。
+
+## English
+
+Starting Island Survival is a single-player Don't Starve: Shipwrecked mod. Stay on your starting island or at sea, with optional access to the entire casino island. Other worlds and world exits remain blocked.
+
+Choose **Language → Auto / 中文 / English** in the mod configuration. Auto uses Chinese for Chinese game locales and English otherwise. Apply and reopen configuration to refresh its text; re-enter your world for gameplay messages. Enable the mod and restart the game when installing it for the first time. Descriptions, configuration labels, option help and landing restrictions are translated. The native Backspace debug panel retains English text and ASCII time units to avoid missing glyphs in the debug font.
+
+| Setting | Choices | Default |
+| --- | --- | --- |
+| Octopus trades | No daily limit / Vanilla limit | No daily limit for non-food items without freshness |
+| Gold guarantee | Guaranteed / Vanilla | Guaranteed on the fifth dig if the first four yielded no gold; non-Woodlegs only |
+| Casino landing | Blocked / Allowed | Blocked |
+| Gem chance | 1 / 1.5 / 2 / 3 / 4 / 5 / 10x | 2x; Lucky Hat yellow/green gems only |
+| Season length | Vanilla / 70-day year | 70 days: 20 Mild, 15 Hurricane, 20 Monsoon, 15 Dry |
+| Coastal nests | At least one / Unchanged | Ensure at least one den is in boat cannon range |
+
+The `mod/` folder contains the complete Workshop mod. This repository also includes documentation and Lua 5.1 regression checks in `tests/`; local test dependencies are excluded. Only upload `mod/` to Steam Workshop. The original Steam installation is kept separate from this workspace.

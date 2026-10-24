@@ -7,6 +7,7 @@ local function option(name, default)
 end
 
 SIS_CONFIG = {
+    language = option("language", "auto"),
     octopus_no_cooldown = option("octopus_no_cooldown", true),
     gold_guarantee = option("gold_guarantee", true),
     casino_landing = option("casino_landing", false),

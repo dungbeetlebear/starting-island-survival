@@ -7,10 +7,11 @@ sys.path.insert(0, str(ROOT / ".tools" / "python"))
 from lupa.lua51 import LuaRuntime
 
 
-def runtime(config="{}", mode="shipwrecked"):
+def runtime(config="{}", mode="shipwrecked", locale="en"):
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.globals().MOD_ROOT = (ROOT / "mod").as_posix()
     lua.globals().MODE = mode
+    lua.globals().GAME_LOCALE = locale
     lua.execute("CONFIG = " + config)
     lua.execute((ROOT / "tests" / "harness.lua").read_text(encoding="utf-8"))
     lua.execute('dofile(MOD_ROOT .. "/modmain.lua")')
@@ -31,8 +32,8 @@ def syntax_and_metadata():
     lua.execute('''
         assert(shipwrecked_compatible and not hamlet_compatible and not dont_starve_compatible
             and not reign_of_giants_compatible and not dst_compatible)
-        assert(#configuration_options == 6)
-        local expected = {octopus_no_cooldown=true, gold_guarantee=true,
+        assert(#configuration_options == 7)
+        local expected = {language="auto", octopus_no_cooldown=true, gold_guarantee=true,
             casino_landing=false, gem_multiplier=2, season_length="70_days", coastal_spiderden=true}
         for _, option in ipairs(configuration_options) do
             assert(option.default == expected[option.name], option.name)
@@ -45,6 +46,115 @@ def syntax_and_metadata():
         end
     ''')
     assert not (ROOT / "mod/scripts/sis_attack.lua").exists()
+
+
+def internationalization():
+    for code, expected in [("zh", "zh"), ("zhr", "zh"), ("zh_TW", "zh"),
+                           ("en", "en"), ("fr", "en"), (None, "en")]:
+        lua = LuaRuntime(unpack_returned_tuples=True)
+        load_info = lua.eval('''function(path, locale)
+            local info={locale=locale}
+            local fn=assert(loadfile(path)); setfenv(fn,info)(); return info
+        end''')
+        info = load_info((ROOT / "mod/modinfo.lua").as_posix(), code)
+        assert info.name == info.sis_i18n[expected].name
+        assert info.description == info.sis_i18n[expected].description
+        for lang in ["zh", "en"]:
+            for option in info.configuration_options.values():
+                entry = info.sis_i18n[lang].config[option.name]
+                assert entry.label and entry.hover
+                assert len(entry.options) == len(option.options)
+                assert all(entry.options.values())
+            assert info.sis_i18n[lang].messages.home_only
+            assert info.sis_i18n[lang].messages.home_casino_only
+    for choice, code, expected in [("auto", "zh", "zh"), ("auto", "zhr", "zh"),
+                                   ("auto", "en", "en"), ("auto", "fr", "en"),
+                                   ("en", "zh", "en"), ("zh", "en", "zh"),
+                                   ("invalid", "en", "en")]:
+        lua = runtime('{language="' + choice + '"}', locale=code)
+        lua.globals().EXPECTED = expected
+        lua.execute('''
+            local info=KnownModIndex:GetModInfo(modname)
+            assert(info.name==info.sis_i18n[EXPECTED].name)
+            assert(info.description==info.sis_i18n[EXPECTED].description)
+            assert(SIS_Text("home_only")==info.sis_i18n[EXPECTED].messages.home_only)
+            assert(SIS_Text("unknown_key")=="unknown_key")
+            local spoken
+            WORLD.components.sisland={IsForbidden=function() return true end}
+            local player={HUD={},components={talker={Say=function(_,text) spoken=text end}}}
+            ACTIONS.DISMOUNT.fn({action=ACTIONS.DISMOUNT,pos={x=100,z=0},doer=player})
+            assert(spoken==SIS_Text("home_only"))
+            SIS_CONFIG.casino_landing=true
+            ACTIONS.DISMOUNT.fn({action=ACTIONS.DISMOUNT,pos={x=100,z=0},doer=player})
+            assert(spoken==SIS_Text("home_casino_only"))
+        ''')
+    lua = runtime('{language="en",gold_guarantee=false,casino_landing=true,gem_multiplier=5}')
+    lua.execute('''
+        local index=KnownModIndex
+        local function language(settings)
+            for _,v in ipairs(settings) do if v.name=="language" then return v end end
+        end
+        local info=index:GetModInfo(modname)
+        assert(info.name=="Starting Island Survival")
+        -- Covers the asynchronous merge callback after LoadModConfigurationOptions returns.
+        index:UpdateConfigurationOptions(info.configuration_options,{{name="language",saved="zh"}})
+        assert(info.name=="初始岛生存" and SIS_CONFIG.language=="zh")
+        assert(info.configuration_options[2].label=="章鱼王交易")
+        assert(info.configuration_options[3].saved==false)
+        assert(info.configuration_options[4].saved==true)
+        assert(info.configuration_options[5].saved==5)
+        -- The Mods screen rebuilds modinfo; remember the saved choice.
+        local fresh=load_modinfo()
+        index.savedata.known_mods[modname].modinfo=fresh
+        assert(index:GetModInfo(modname).name=="初始岛生存")
+        SAVED_CONFIG={{name="language",saved="en"}}
+        index:LoadModConfigurationOptions(modname)
+        assert(fresh.name=="Starting Island Survival")
+        local called=0
+        index:SaveConfigurationOptions(function()
+            called=called+1; assert(fresh.name=="初始岛生存")
+            assert(index:GetModInfo(modname).name=="初始岛生存")
+        end,modname,{{name="language",saved="zh"}})
+        assert(called==1 and fresh.name=="初始岛生存")
+        index.savedata.known_mods.other={modinfo={name="Other mod",configuration_options={}}}
+        index:SaveConfigurationOptions(function() called=called+1 end,"other",{})
+        assert(called==2 and index:GetModInfo("other").name=="Other mod")
+        assert(index:GetModInfo(modname).name=="初始岛生存")
+        local function spinners()
+            local values={}; for i=1,7 do values[i]={OnGainFocus=function() end} end
+            return values
+        end
+        local screen={modname=modname,option_offset=0,left_spinners=spinners()}
+        screen.root={AddChild=function(_,child) screen.help=child; return child end}
+        screen.RefreshOptions=function(self) self.left_spinners=spinners() end
+        init("class","screens/modconfigurationscreen",screen)
+        screen.left_spinners[3]:OnGainFocus()
+        assert(screen.help.text==fresh.sis_i18n.zh.config.gold_guarantee.hover)
+        screen:RefreshOptions(); screen.left_spinners[6]:OnGainFocus()
+        assert(screen.help.text==fresh.sis_i18n.zh.config.season_length.hover)
+        init("class","screens/modconfigurationscreen",{modname="other"})
+        local details=0
+        local menu={modnames={modname},currentmod=1,
+            ShowModDetails=function() details=details+1 end}
+        init("class","screens/modsscreen",menu); menu:OnBecomeActive()
+        assert(details==1)
+        GAME_LOCALE="zh"
+        index:SaveConfigurationOptions(function() end,modname,{{name="language",saved="auto"}})
+        assert(index:GetModInfo(modname).name=="初始岛生存")
+        GAME_LOCALE="en"
+        assert(index:GetModInfo(modname).name=="Starting Island Survival")
+        assert(SIS_Text("home_only")==fresh.sis_i18n.en.messages.home_only)
+    ''')
+    lua = runtime('{gold_guarantee=false,casino_landing=true,gem_multiplier=3}', locale="zh")
+    lua.execute('''
+        -- An older configuration has no language row: use Auto and retain gameplay choices.
+        SAVED_CONFIG={{name="gold_guarantee",saved=false},
+            {name="casino_landing",saved=true},{name="gem_multiplier",saved=3}}
+        local settings=KnownModIndex:LoadModConfigurationOptions(modname)
+        assert(SIS_CONFIG.language=="auto")
+        assert(KnownModIndex:GetModInfo(modname).name=="初始岛生存")
+        assert(settings[3].saved==false and settings[4].saved==true and settings[5].saved==3)
+    ''')
 
 
 def isolation_and_toggles():
@@ -308,7 +418,8 @@ def trading():
 
 
 for name, fn in [
-    ("Lua 5.1 syntax and six settings/defaults", syntax_and_metadata),
+    ("Lua 5.1 syntax and seven settings/defaults", syntax_and_metadata),
+    ("Chinese/English sandbox metadata, saved language, UI help and gameplay messages", internationalization),
     ("non-Shipwrecked isolation and explicit false settings", isolation_and_toggles),
     ("gem multipliers/caps and fifth-dig gold guarantee", treasure),
     ("70-day cycle versus original 72-day timing", seasons),
