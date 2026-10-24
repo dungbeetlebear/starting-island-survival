@@ -16,7 +16,7 @@ sis_i18n = {
             },
             gold_guarantee = {
                 label = "挖宝金块保底",
-                hover = "非船长前四次挖宝未出金块时，第五次使用含3个金块的原版宝藏。关闭时仍记录挖宝历史，重新开启不重置次数。",
+                hover = "除奶奶外：初始岛前4次挖宝都未出金块，第5次使用含3金块的原版预设。铲子、风向标、船炮和炸弹等共用次数，只保底一次；关闭也记录。",
                 options = {"有保底", "无保底"},
             },
             casino_landing = {
@@ -96,7 +96,7 @@ sis_i18n = {
             },
             gold_guarantee = {
                 label = "Gold guarantee",
-                hover = "For non-Woodlegs: if the first four digs yield no gold, the fifth uses a vanilla preset with 3 gold nuggets. Dig history is still recorded while disabled; toggling does not reset it.",
+                hover = "Except Wickerbottom: if the first 4 home-island excavations yield no gold, the 5th uses a vanilla preset with 3 nuggets. All excavation methods share the count. One-time guarantee; history is recorded while disabled.",
                 options = {"Guaranteed", "Vanilla"},
             },
             casino_landing = {
@@ -169,7 +169,7 @@ local text = sis_i18n[chinese and "zh" or "en"]
 name = text.name
 description = text.description
 author = "Starting Island Survival"
-version = "1.w"
+version = "1.x"
 api_version = 6
 priority = -10
 dont_starve_compatible = false

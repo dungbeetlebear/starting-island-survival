@@ -220,28 +220,92 @@ def treasure():
     for enabled in [True, False]:
         lua = runtime("{gold_guarantee=" + str(enabled).lower() + "}")
         lua.execute('''
-            local function player(prefab)
-                return {prefab=prefab, HasTag=function(_, tag) return tag=="player" end}
+            Class=function(ctor)
+                local class={}; class.__index=class
+                return setmetatable(class,{__call=function(_,inst)
+                    local self=setmetatable({},class); ctor(self,inst); return self
+                end})
             end
-            local function dig(worker, preset, hat)
-                local t={components={workable={}}, loot=preset or "sample"}
+            WORLD.StartUpdatingComponent=function() end
+            local Island=dofile(MOD_ROOT .. "/scripts/components/sisland.lua")
+            local function island(data)
+                local c=Island(WORLD)
+                c.ready=true; c.tiles={home=true}; c.home={0,0}
+                c.IsHome=function(_,x,z) return x==0 end
+                if data then c:OnLoad(data) end
+                WORLD.components.sisland=c
+                return c
+            end
+            local function entity(prefab,x,components)
+                return {prefab=prefab,components=components or {},
+                    IsValid=function() return true end,
+                    Transform={GetWorldPosition=function() return x or 0,0,0 end}}
+            end
+            local p
+            GetPlayer=function() return p end
+            local function reset(prefab)
+                p=entity(prefab or "wilson")
+                Ents={}
+                return island()
+            end
+            local function dig(method,preset,x)
+                local t=entity("buriedtreasure",x,{workable={}})
+                t.loot=preset or "sample"
                 t.components.workable.onfinish=function(inst)
                     return SpawnTreasureChest(inst.loot, {inst=inst})
                 end
                 init("prefab", "buriedtreasure", t)
-                t._sis_hat=hat
-                return t.components.workable.onfinish(t, worker), t
+                t.components.workable.onfinish(t,method and entity(method) or nil)
+                return t.loot
             end
-            local worker=player("wilson")
-            for i=1,4 do local _,t=dig(worker); assert(t.loot=="sample") end
-            local _, fifth=dig(worker)
-            assert(fifth.loot==(SIS_CONFIG.gold_guarantee and "gems" or "sample"))
-            assert(worker._sis_treasure_digs==5)
-            local lucky=player("wilson")
-            dig(lucky,"gems")
-            for i=1,4 do local _,t=dig(lucky); assert(t.loot=="sample") end
-            local captain=player("woodlegs"); captain._sis_treasure_digs=4
-            local _,t=dig(captain); assert(t.loot=="sample")
+            local methods={"wilson","tornado","cannonshot","gunpowder","coconade"}
+            for _,prefab in ipairs({"wilson","woodlegs","wickerbottom"}) do
+                local c=reset(prefab)
+                for i=1,4 do assert(dig(methods[i])=="sample") end
+                local data=c:OnSave()
+                assert(data.treasure_digs==4 and not data.treasure_gold)
+                c=island(data)
+                assert(c.treasure_digs==4)
+                local guaranteed=SIS_CONFIG.gold_guarantee and prefab~="wickerbottom"
+                assert(dig(methods[5])==(guaranteed and "gems" or "sample"))
+                assert(c.treasure_digs==5 and c.treasure_gold==guaranteed)
+                for i=6,10 do assert(dig("tornado")=="sample") end
+                assert(c.treasure_digs==10)
+                for gold_at=1,4 do
+                    c=reset(prefab)
+                    for i=1,4 do dig(methods[i],i==gold_at and "gems" or "sample") end
+                    c=island(c:OnSave())
+                    assert(c.treasure_gold and c.treasure_digs==4)
+                    -- No gold exists in the world now, but the record survives.
+                    assert(next(Ents)==nil and dig("coconade")=="sample")
+                end
+            end
+            -- Container contents never affect treasure history.
+            local c=reset(); c.treasure_digs=4
+            Ents={entity("treasurechest",0,{container={slots={entity("goldnugget")}}})}
+            assert(dig("tornado")== (SIS_CONFIG.gold_guarantee and "gems" or "sample"))
+            c=reset(); c.treasure_digs=4
+            assert(dig("tornado","gems",48)=="gems")
+            assert(c.treasure_digs==4 and not c.treasure_gold)
+            assert(dig(nil)==(SIS_CONFIG.gold_guarantee and "gems" or "sample"))
+            assert(c.treasure_digs==5)
+            for _,old_gold in ipairs({false,true}) do
+                c=reset(); p._sis_treasure_digs=4; p._sis_treasure_gold=old_gold
+                local guaranteed=SIS_CONFIG.gold_guarantee and not old_gold
+                assert(dig("cannonshot")== (guaranteed and "gems" or "sample"))
+                assert(c.treasure_digs==5 and c.treasure_gold==(old_gold or guaranteed))
+            end
+            c=reset(); c.treasure_digs=7
+            assert(dig("coconade")=="sample" and c.treasure_digs==8)
+            local setting=SIS_CONFIG.gold_guarantee
+            for _,early_gold in ipairs({false,true}) do
+                c=reset(); SIS_CONFIG.gold_guarantee=false
+                for i=1,4 do dig("tornado",early_gold and i==2 and "gems" or "sample") end
+                c=island(c:OnSave()); SIS_CONFIG.gold_guarantee=true
+                assert(dig("tornado")== (early_gold and "sample" or "gems"))
+                assert(c.treasure_digs==5 and c.treasure_gold)
+            end
+            SIS_CONFIG.gold_guarantee=setting
         ''')
 
 

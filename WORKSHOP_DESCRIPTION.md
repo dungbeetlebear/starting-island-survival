@@ -27,7 +27,7 @@
 以下是默认值，都可以在模组配置里修改。
 
 - 章鱼王交易：无新鲜度的非食物物品取消每日冷却，仍需等交易动画和奖励完成。食物保留原版每日额度。
-- 挖宝金块保底：默认开启。非船长前四次亲手用铲子挖宝都没出过金块时，第五次使用含3个金块的原版宝藏；此前出过金块就不再触发。不是每五次循环保底。
+- 挖宝金块保底：默认开启，奶奶（薇克巴顿）除外，船长也能触发。初始岛前4次挖宝都没出过金块，第5次就会使用含3个金块的原版宝藏预设。各种挖宝方式共用记录；前面出过金块，即使用完也不触发。不检查箱子或背包里的金块，也不循环保底。
 - 黄绿宝石概率：幸运帽宝藏默认2倍，可选1、1.5、2、3、4、5或10倍。调整的是出现概率，普通宝藏不受影响。
 - 季节长度：默认全年70天，温和季20天、风季15天、雨季20天、火山季15天；也可选择原版时间。
 - 蜘蛛巢靠岸：默认保证全图至少一个蜘蛛巢在船炮射程内。已经满足就不搬，否则只调整一个，不会把所有巢都搬到海边。
@@ -60,7 +60,7 @@
 6. 奇物店出售两种角
 售卖龙鳞的奇物店，后续刷新时有机会出售守护者之角（50呼噜币）和河鹿角（30呼噜币）。
 
-新增的挖宝怪物和植物材料同样支持风向标、船炮、火药、椰子炸弹等挖宝方式。个人金块保底仍只记录角色亲手用铲子挖掘。
+新增的挖宝怪物和植物材料同样支持风向标、船炮、火药、椰子炸弹等挖宝方式。这些方式也会累计本岛的挖宝次数，并记录宝藏是否实际出过金块；关闭保底也会继续记录。
 
 【开玩前看这里】
 
@@ -113,7 +113,7 @@ SETTINGS AND DEFAULTS
 These settings can be changed in the mod configuration.
 
 - Octopus King trades: no daily limit for non-food items without freshness. Wait for the trade animation and reward to finish. Food keeps its vanilla daily limit.
-- Gold guarantee: on by default. For non-Woodlegs characters, if the first four personal shovel digs yield no gold, the fifth uses a vanilla treasure preset containing 3 Gold Nuggets. Finding gold earlier prevents the guarantee. This is a one-time safeguard, not a repeating five-dig cycle.
+- Gold guarantee: on by default, for every character except Wickerbottom, including Woodlegs. If your first 4 excavations on the starting island yield no gold, the 5th uses a vanilla treasure preset containing 3 Gold Nuggets. All excavation methods share the same history. Finding gold in an earlier treasure prevents the guarantee, even if you spend it. The mod does not check gold in chests or backpacks. This is a one-time safeguard, not a repeating five-excavation cycle.
 - Yellow/green gem chance: 2x by default for Lucky Hat treasures. Choose 1, 1.5, 2, 3, 4, 5 or 10x. This changes the chance, not the quantity; ordinary treasures are unaffected.
 - Seasons: a 70-day year by default—20 Mild, 15 Hurricane, 20 Monsoon and 15 Dry days. Vanilla season timing is also available.
 - Coastal spider dens: ensure at least one den anywhere in the world is within Boat Cannon range. Move none if one already qualifies; otherwise move only one.
@@ -146,7 +146,7 @@ Some resource treasures may contain Clippings or Light Bulbs, yielding 1–2 of 
 6. Antiques shop horns
 The shop that sells Dragonfly Scales may also stock Guardian's Horn for 50 Oincs or Hippopotamoose Antler for 30 Oincs on future restocks.
 
-The added treasure monsters and plant materials also work with Wind Staffs, Boat Cannons, Gunpowder, Coconades and other native excavation methods. Personal gold-guarantee history still counts shovel digs only.
+The added treasure monsters and plant materials also work with Wind Staffs, Boat Cannons, Gunpowder, Coconades and other native excavation methods. These methods all count toward the island's excavation total and record whether treasure actually yielded gold. History is still recorded while the guarantee is disabled.
 
 BEFORE YOU START
 
@@ -169,4 +169,3 @@ For bug reports, please include your character, enabled settings, other mods and
 SOURCE AND FEEDBACK
 
 https://github.com/dungbeetlebear/starting-island-survival
-

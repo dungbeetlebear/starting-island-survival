@@ -5,6 +5,9 @@ local Island = Class(function(self, inst)
     self.casino_tiles = {}
     self.allow_casino = false
     self.ready = false
+    -- Nil until the first excavation allows migration of old personal history.
+    self.treasure_digs = nil
+    self.treasure_gold = false
     self.inst:StartUpdatingComponent(self)
 end)
 
@@ -206,7 +209,8 @@ end
 
 function Island:OnSave()
     if self.ready then
-        return {tiles=self.tiles, home=self.home, seahome=self.seahome, casino_tiles=self.casino_tiles}
+        return {tiles=self.tiles, home=self.home, seahome=self.seahome, casino_tiles=self.casino_tiles,
+            treasure_digs=self.treasure_digs, treasure_gold=self.treasure_gold or false}
     end
 end
 
@@ -215,6 +219,8 @@ function Island:OnLoad(data)
         self.tiles, self.home, self.ready = data.tiles, data.home, true
         self.seahome=data.seahome
         self.casino_tiles=data.casino_tiles or {}
+        self.treasure_digs=data.treasure_digs
+        self.treasure_gold=data.treasure_gold or false
         self:RefreshCasinoIslands()
     end
 end

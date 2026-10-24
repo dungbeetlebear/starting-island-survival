@@ -67,7 +67,7 @@ def run_checks(runtime, check):
             LOOT.resources={loot={goldnugget=3},random_loot={papyrus=1,rope=1,gears=1}}
             LOOT.attack={loot={snake=2}}
             local function dig(prefab, name)
-                local t={components={workable={}},loot=name}
+                local t={components={workable={}},loot=name,Transform={GetWorldPosition=function() return 0,0,0 end}}
                 t.components.workable.onfinish=function(inst)
                     assert(SIS_DUG_TREASURE_DEPTH>0)
                     return SpawnTreasureChest(inst.loot,{inst=inst})
@@ -98,7 +98,7 @@ def run_checks(runtime, check):
             assert(resources.random_loot.clippings==1 and resources.random_loot.lightbulb==1)
             assert(SpawnTreasureChest("resources",{inst={}})==LOOT.resources)
             assert(GetTreasureLootDefinition("attack")==LOOT.attack)
-            local t={components={workable={onfinish=function() error("test failure") end}}}
+            local t={components={workable={onfinish=function() error("test failure") end}},Transform={GetWorldPosition=function() return 0,0,0 end}}
             init("prefab","buriedtreasure",t)
             assert(not pcall(t.components.workable.onfinish,t,{prefab="wilson",HasTag=function() return true end}))
             assert(SIS_DUG_TREASURE_DEPTH==0 and GetTreasureLootDefinition("attack")==LOOT.attack)

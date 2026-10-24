@@ -61,6 +61,7 @@ def run_checks(runtime, check):
             SpawnPrefab=function(name) return entity(name) end
             local target
             TheSim={FindEntities=function() return {target} end}
+            WORLD.components.sisland.treasure_digs=10
             local material="clippings"
             weighted_random_choice=function(weights)
                 if weights[material] then return material end
@@ -115,6 +116,22 @@ def run_checks(runtime, check):
             assert(not dig("cannonshot","SuperTelescope").lightbulb)
             assert(GetTreasureLootDefinition("snaketrap").loot.snake==3)
             assert(not GetTreasureLootDefinition("SuperTelescope").random_loot.clippings)
+            for _,method in ipairs({"shovel","tornado","cannonshot","woodlegs_cannonshot",
+                "gunpowder","coconade","other_worker"}) do
+                WORLD.components.sisland.treasure_digs=0
+                WORLD.components.sisland.treasure_gold=false
+                for i=1,4 do dig("tornado","snaketrap") end
+                assert(WORLD.components.sisland.treasure_digs==4)
+                local loot=dig(method,"snaketrap")
+                assert(loot.goldnugget==3,method.." fifth excavation")
+                assert(WORLD.components.sisland.treasure_digs==5 and WORLD.components.sisland.treasure_gold)
+                WORLD.components.sisland.treasure_digs=0
+                WORLD.components.sisland.treasure_gold=false
+                dig(method,"gems")
+                for i=2,4 do dig("tornado","snaketrap") end
+                assert(dig(method,"snaketrap").snake==3,method.." early gold")
+                assert(WORLD.components.sisland.treasure_digs==5 and WORLD.components.sisland.treasure_gold)
+            end
             math.random=original_random
         ''')
         # The engine checks compatibility-pack flags, not the world prefab:

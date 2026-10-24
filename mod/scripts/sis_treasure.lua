@@ -38,19 +38,27 @@ AddPrefabPostInit("buriedtreasure",function(t)
     local finish=work and work.onfinish
     if finish then
         work.onfinish=function(inst,worker,...)
-            if not active() or not worker then
+            local c=active()
+            if not c then
                 return finish(inst,worker,...)
             end
-            -- Wind staff tornadoes, cannon shots and explosives are the native
-            -- worker too. Scope loot changes to every completed excavation;
-            -- personal gold-pity history still belongs to player shovel digs.
-            local track=worker:HasTag("player") and worker.prefab~="woodlegs"
-            local digs=worker._sis_treasure_digs or 0
+            -- All native excavation workers share the home island's counter.
+            -- Only home excavations count; casino treasure cannot consume pity.
+            local x,y,z=inst.Transform:GetWorldPosition()
+            local track=c.ready and c:IsHome(x,z)
+            local player=G.GetPlayer()
+            local digs=c.treasure_digs
+            local gold=c.treasure_gold or false
+            if digs==nil then
+                digs=player and player._sis_treasure_digs or 0
+                gold=player and player._sis_treasure_gold or false
+            end
             -- Choose the original preset with three guaranteed nuggets; do not
             -- tack an extra gold item onto an otherwise unrelated preset.
-            if track and SIS_CONFIG.gold_guarantee and digs==4 and not worker._sis_treasure_gold then inst.loot="gems" end
+            if track and SIS_CONFIG.gold_guarantee and digs==4 and player
+                and player.prefab~="wickerbottom" and not gold then inst.loot="gems" end
             local previous=dig_context
-            local context={gold=false,generated=false}
+            local context={generated=false,gold=false}
             local depth=SIS_DUG_TREASURE_DEPTH or 0
             local result={G.pcall(function(...)
                 dig_context=context
@@ -61,8 +69,8 @@ AddPrefabPostInit("buriedtreasure",function(t)
             SIS_DUG_TREASURE_DEPTH=depth
             if not result[1] then G.error(result[2]) end
             if track and context.generated then
-                worker._sis_treasure_digs=digs+1
-                worker._sis_treasure_gold=worker._sis_treasure_gold or context.gold
+                c.treasure_digs=(c.treasure_digs or digs)+1
+                c.treasure_gold=c.treasure_gold or gold or context.gold
             end
             return G.unpack(result,2)
         end

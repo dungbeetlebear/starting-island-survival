@@ -1,6 +1,6 @@
 # 初始岛生存 Mod 工作区
 
-- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.w`。
+- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.x`。
 - `tests/`：逻辑回归检查，随 GitHub 仓库保存，不需要上传创意工坊。
 - 已保留原发布版的 Git 基线，便于查看本次修改和回退。
 - Steam 原目录未改动。后续继续编辑本工作区的 `mod/`。
@@ -28,7 +28,7 @@
 
 盗贼沿用哈姆雷特原版的携带钱币、城市地皮、附近城镇猪屋掩体、昼夜概率、偷窃、逃跑及击杀冷却，仅增加初始岛至少3栋合格房屋（歪斜小木屋不计）的条件，藏宝点和挖出的箱子均只在初始岛。没有钱币、城市地皮或猪屋掩体时不会产生盗贼。
 
-挖宝怪物池保留原来的6种，并加入14种有攻击能力的哈姆雷特小型生物，20种等概率抽取，不提高原有怪物事件概率或数量；排除无辜动物和大型生物。具体名单见 `mod/README.md`。铲子、风向标、船炮、火药、椰子炸弹及其他原版挖宝路径均应用新增掉落；金块保底继续只记录角色亲手挖掘。
+挖宝怪物池保留原来的6种，并加入14种有攻击能力的哈姆雷特小型生物，20种等概率抽取，不提高原有怪物事件概率或数量；排除无辜动物和大型生物。具体名单见 `mod/README.md`。铲子、风向标、船炮、火药、椰子炸弹及其他原版挖宝路径均应用新增掉落；金块保底按初始岛所有方式统一记录挖宝次数和实际出金情况。
 
 已删除 F 自动攻击跳过墙的功能。运行时按实际世界检查，仅海难生效。为支持启用了哈姆雷特兼容内容的海难存档，允许引擎在这两种内容包下加载；进入真正的哈姆雷特世界仍不启用玩法调整。
 
@@ -38,7 +38,7 @@
 
 “原版时间”不强制覆盖季节长度，也不修正原版浮点累加引起的季节延长；“70天”使用20/15/20/15天并保留原有的换季精度修正。默认沿用本 Mod 现有的70天。
 
-金块保底关闭时仍记录挖宝历史，重新开启不会重置次数。此前已经错过第五次的角色不会补发金块。黄绿宝石倍率只影响幸运帽产生的宝藏，普通宝藏维持原样，概率达到上限时封顶。
+金块保底对非奶奶（薇克巴顿）角色生效，包含船长。初始岛所有挖宝方式共用次数和实际出金记录：前4次均未出金块，第5次使用含3金块的原版预设；此前出过金块，即使用完也不触发。不检查容器或其他来源的金块，其他岛挖宝不计入。只在第五次判断一次；关闭时仍记录，重新开启不重置，也不补发已错过的保底。黄绿宝石倍率只影响幸运帽产生的宝藏，普通宝藏维持原样，概率达到上限时封顶。
 
 ## 本地测试与创意工坊上传
 
@@ -63,7 +63,7 @@ Choose **Language → Auto / 中文 / English** in the mod configuration. Auto u
 | Setting | Choices | Default |
 | --- | --- | --- |
 | Octopus trades | No daily limit / Vanilla limit | No daily limit for non-food items without freshness |
-| Gold guarantee | Guaranteed / Vanilla | Guaranteed on the fifth dig if the first four yielded no gold; non-Woodlegs only |
+| Gold guarantee | Guaranteed / Vanilla | Except Wickerbottom: fifth home-island excavation if the first four yielded no gold; all methods share history |
 | Casino landing | Blocked / Allowed | Blocked |
 | Gem chance | 1 / 1.5 / 2 / 3 / 4 / 5 / 10x | 2x; Lucky Hat yellow/green gems only |
 | Season length | Vanilla / 70-day year | 70 days: 20 Mild, 15 Hurricane, 20 Monsoon, 15 Dry |
@@ -76,7 +76,7 @@ Choose **Language → Auto / 中文 / English** in the mod configuration. Auto u
 | Plant loot | Off / On; Clippings and Light Bulbs, 1-2 each when selected | Off |
 | Shop horns | Off / On; Guardian's Horn and Hippopotamoose Antler | Off |
 
-All new optional features default to Off; Fishbone suction stays On. Hamlet extensions require installed Hamlet content. The engine may load the mod under the Hamlet compatibility pack so linked Shipwrecked saves work; gameplay remains restricted to actual Shipwrecked worlds. Bandits use the native Hamlet currency, city ground, nearby town-pig-house cover, time-of-day odds, stealing, escape and death cooldown rules, with an additional three-building threshold on the starting island, excluding Slanty Shanties. Their treasure always stays on the starting island. The treasure monster switch shares the original monster slots uniformly across 6 original and 14 attacking Hamlet creatures without increasing encounter frequency or count. Innocent wildlife and large creatures are excluded. New treasure loot applies to shovel, wind staff, cannon and explosive excavations. Personal gold-pity history continues to track player shovel digs only.
+All new optional features default to Off; Fishbone suction stays On. Hamlet extensions require installed Hamlet content. The engine may load the mod under the Hamlet compatibility pack so linked Shipwrecked saves work; gameplay remains restricted to actual Shipwrecked worlds. Bandits use the native Hamlet currency, city ground, nearby town-pig-house cover, time-of-day odds, stealing, escape and death cooldown rules, with an additional three-building threshold on the starting island, excluding Slanty Shanties. Their treasure always stays on the starting island. The treasure monster switch shares the original monster slots uniformly across 6 original and 14 attacking Hamlet creatures without increasing encounter frequency or count. Innocent wildlife and large creatures are excluded. New treasure loot applies to shovel, wind staff, cannon and explosive excavations. All home-island excavation methods share the gold-guarantee counter and actual gold-drop history.
 
 The `mod/` folder contains the complete Workshop mod. This repository also includes documentation and Lua 5.1 regression checks in `tests/`; local test dependencies are excluded. Only upload `mod/` to Steam Workshop. The original Steam installation is kept separate from this workspace.
 
@@ -104,3 +104,9 @@ Version 1.v fixes players being pulled out of shops/houses while the camera rema
 更新本地测试目录后完全退出并重启游戏，再进入原存档。已有商店及货架会按原版读档流程重绘图片，不需拆店或重建世界。新增资源检查直接执行原版商品／价格／货架绘图及商店读档逻辑，确认其引用的两套图集和图片符号实际存在；原有房间、随从、挖宝、开关及市长检查继续通过。当前18组检查不能代替游戏引擎内的图片显示及稳定性复测。此前闪退日志没有留下可定位的Lua错误堆栈，尚未确认闪退根因。
 
 Version 1.w explicitly preloads both native inventory atlases and their animation builds for shop product/price signs and shelves, the native display/shelf/door prefabs, and Hamlet sound dependencies in Shipwrecked. Native product selection, prices, restocking and saved stock are preserved. Fully restart after updating the test mod; existing shops redraw their icons through native loading without rebuilding. Eighteen logic/integration groups pass, including native drawing bindings; engine rendering and the earlier crash still require in-game verification.
+
+## 1.x 本岛挖宝保底
+
+金块保底排除奶奶，船长可以触发；初始岛所有挖宝方式共用次数和实际出金记录，并随世界保存。前4次都未出金，第5次使用含3金块的原版预设；此前出过金块，即使用完也不触发。不扫描容器。关闭时继续记录，已过第五次不补发。旧档迁移已保存的个人挖宝次数和出金记录，旧版未记录的间接挖宝无法还原。
+
+Version 1.x excludes Wickerbottom rather than Woodlegs from the gold guarantee. All home-island excavation methods share saved world history. If the first four excavations yielded no gold, the fifth uses a vanilla preset with 3 nuggets. Earlier treasure gold prevents the guarantee even if spent. Containers are not scanned. History is recorded while disabled; no retroactive grant. Old saves migrate their recorded personal count and gold history; previously unrecorded indirect excavations cannot be reconstructed.

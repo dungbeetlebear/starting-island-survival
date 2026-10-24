@@ -31,6 +31,7 @@ AddPlayerPostInit(function(p)
     boat.sortkey=2
     G.GetAllRecipes(true)
 
+    -- Retain old personal history for migration into the island-wide counter.
     local save,load=p.OnSave,p.OnLoad
     p.OnSave=function(inst,data,...)
         if save then save(inst,data,...) end

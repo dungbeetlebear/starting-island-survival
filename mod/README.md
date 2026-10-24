@@ -1,4 +1,4 @@
-# 初始岛生存（单机海难）1.w
+# 初始岛生存（单机海难）1.x
 
 首次使用请新建海难世界。出生岛记录、最近的安全位置和挖宝记录随存档保存。
 
@@ -45,7 +45,7 @@
 
 - 非船长出生赠送一个幸运帽。船长和老奶奶不额外赠送铲子，其他角色赠送一把普通铲子。原版角色出生物品保留。
 - 非船长佩戴思维帽时可制作海腿号和幸运帽，保留原版材料、航海栏和船的水上放置规则；幸运帽sortkey=1、海腿号sortkey=2，与船长原版位置一致；不会永久解锁配方。
-- 默认开启金块保底：非船长亲手用铲子挖掘的前四个宝箱如果都没出现过金块，第五次改用原版gems预设，固定含3个金块。并非额外往任意箱子里塞金子。此前已出过金块则不触发保底。
+- 默认开启金块保底：除奶奶（薇克巴顿）外，包含船长。初始岛所有挖宝方式统一记录次数和实际出金情况，前4次均未出金块，第5次改用含3金块的原版gems预设；此前出过金块，即使用完也不触发。不扫描容器，其他来源的金块不影响判定，其他岛的挖宝不计入。仅第五次判断一次，不循环保底。次数和出金记录随世界保存，关闭也继续记录。
 - 次数和金块记录随角色保存，读档不会重置。船长保留原版。旧档在0.1.4之前的挖掘无法追溯，从更新后的挖掘开始记录。
 - 出生赠品由原版新世界出生流程发放，旧档读取不补发；测试赠品需要新开世界。
 
@@ -73,11 +73,13 @@
 
 海妖冷却归零后仍需满足原版深海拖网条件。首雨时间为预计值。源码逻辑检查不替代完整实机游玩验证。
 
+1.x：金块保底改为排除奶奶、包含船长，初始岛所有挖宝方式共用次数及实际出金记录，前4次没出金则第5次使用含3金块的原版预设；不扫描容器。旧档沿用已记录的个人次数和出金记录，旧版未记录的间接挖宝无法还原；已过第五次不补发。
+
 1.w：补齐商品、价格牌和置物架所需的两套原版图片图集及动画图集预加载，并加载展示台／置物架／房门及哈姆雷特音效依赖。更新后完全重启，原有商店通过读档恢复图片，不需要拆店；不改变商品、价格或补货。
 
 1.v：修复商店等室内被误判为其他岛屿、角色被拉走而镜头留在空房间的问题；室内不记录为室外安全点，出门保留独岛检查并同步随从落点。更新后完全重启游戏，可使用原存档复测。
 
-1.u：修复风向标、船炮、炸药等间接挖宝跳过新增掉落的问题；修复内容包状态误判和哈姆雷特兼容的海难存档跳过加载的问题。个人金块保底仍只统计角色亲手挖掘。更新测试目录后须完全退出并重启游戏；未挖开的旧宝藏也会生效。
+1.u：修复风向标、船炮、炸药等间接挖宝跳过新增掉落的问题；修复内容包状态误判和哈姆雷特兼容的海难存档跳过加载的问题。该版本的个人金块保底只统计角色亲手挖掘，1.x已改为本岛统一计数。更新测试目录后须完全退出并重启游戏；未挖开的旧宝藏也会生效。
 
 1.t：新增7项设置；哈姆雷特小型怪物挖宝、原版城镇盗贼（藏宝限定初始岛）、铸铁块拆解、新建市政厅市长、植物材料和奇物店角均可独立开启；鱼骨吸入可关闭。新增项中英双语，详细说明移至两列设置下方。
 
@@ -89,7 +91,7 @@
 
 Single-player Shipwrecked only. Choose **Language → Auto / 中文 / English** in mod configuration. Auto follows Chinese game locales and falls back to English for other languages. Apply and reopen configuration to update its text; re-enter your world for gameplay messages. Enable the mod and restart the game when first installing it.
 
-Configuration defaults: unlimited daily Octopus King trades for non-food items without freshness; fifth-dig gold guarantee for non-Woodlegs; casino landing blocked; 2x Lucky Hat yellow/green gem chance; a 70-day year (20/15/20/15); at least one spider den within boat cannon range. Existing gameplay settings carry over unchanged. Disabling coastal nests does not undo saved positions. Ordinary treasure loot is unaffected by the gem multiplier.
+Configuration defaults: unlimited daily Octopus King trades for non-food items without freshness; a one-time guarantee for all characters except Wickerbottom on the fifth home-island excavation if the first four yielded no gold, with all methods sharing history; casino landing blocked; 2x Lucky Hat yellow/green gem chance; a 70-day year (20/15/20/15); at least one spider den within boat cannon range. Existing gameplay settings carry over unchanged. Disabling coastal nests does not undo saved positions. Ordinary treasure loot is unaffected by the gem multiplier.
 
 The native Backspace debug panel keeps English labels and ASCII time units to avoid missing debug-font glyphs. The mod's description, configuration and landing messages support both Chinese and English. The F-key wall-skipping modification has been removed.
 
@@ -104,7 +106,7 @@ Version 1.t adds seven settings. **Fishbone vacuum defaults to On; all six other
 - Antiques shops may stock Guardian's Horn (50 Oincs) and Hippopotamoose Antler (30 Oincs), equally with existing stock on future restocks. Existing displayed products are preserved.
 
 
-Version 1.u fixes missing optional drops when wind staff tornadoes, cannon shots or explosives excavate treasure. New loot now applies to every native completed buried-treasure excavation, while personal gold-pity history still tracks player shovel digs only. Installed Hamlet content no longer depends on the currently selected DLC flag. The engine compatibility declaration allows Hamlet-compatible Shipwrecked saves to load the mod; actual Hamlet worlds remain unaffected. Replace the local test mod and fully restart the game before testing; existing undug treasures use the updated rules.
+Version 1.u fixes missing optional drops when wind staff tornadoes, cannon shots or explosives excavate treasure. New loot now applies to every native completed buried-treasure excavation, while that version still counted only player shovel digs for personal gold pity (replaced by island-wide counting in 1.x). Installed Hamlet content no longer depends on the currently selected DLC flag. The engine compatibility declaration allows Hamlet-compatible Shipwrecked saves to load the mod; actual Hamlet worlds remain unaffected. Replace the local test mod and fully restart the game before testing; existing undug treasures use the updated rules.
 
 ### 盗贼概率细则 / Bandit odds
 
@@ -126,3 +128,5 @@ Version 1.v preserves native shop/house/Town Hall entry, room movement, room loa
 
 
 Version 1.w preloads both native inventory animation atlases, shop displays, shelves, doors and Hamlet sound dependencies for Shipwrecked. Product images and price labels use animation symbols in addition to normal inventory icons. Existing shops restore their images through native save loading; no shop rebuilding or price/restock changes are required. Fully restart after updating.
+
+Version 1.x records the count and actual gold drops of all home-island excavation methods in world history, excluding Wickerbottom rather than Woodlegs from the guarantee. If the first four yielded no gold, the fifth uses a vanilla preset with 3 nuggets. Earlier treasure gold prevents it even if spent. Containers are not scanned. Old saves retain their recorded personal count and gold history; previously unrecorded indirect excavations cannot be reconstructed. No retroactive grants.
