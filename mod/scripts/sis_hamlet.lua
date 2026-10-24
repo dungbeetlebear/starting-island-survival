@@ -16,6 +16,7 @@ if SIS_HAS_HAMLET then
         "minotaurhorn","hippo_antler","iron","alloy","oinc","oinc10","armor_metal","halberd","hats"}) do
         PrefabFiles[#PrefabFiles+1]=name
     end
+    modimport("scripts/sis_assets.lua")
 end
 
 local original_monsters={"spider","mosquito_poison","snake","primeape","snake_poison","hound"}

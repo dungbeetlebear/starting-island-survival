@@ -1,4 +1,5 @@
 GLOBAL=_G
+Asset=function(kind,file,param) return {type=kind,file=file,param=param} end
 PORKLAND_DLC=3
 IsDLCInstalled=function() return HAS_HAMLET~=false end
 IsDLCEnabled=function() return HAMLET_ENABLED~=false end

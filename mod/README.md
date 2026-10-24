@@ -1,4 +1,4 @@
-# 初始岛生存（单机海难）1.v
+# 初始岛生存（单机海难）1.w
 
 首次使用请新建海难世界。出生岛记录、最近的安全位置和挖宝记录随存档保存。
 
@@ -73,6 +73,8 @@
 
 海妖冷却归零后仍需满足原版深海拖网条件。首雨时间为预计值。源码逻辑检查不替代完整实机游玩验证。
 
+1.w：补齐商品、价格牌和置物架所需的两套原版图片图集及动画图集预加载，并加载展示台／置物架／房门及哈姆雷特音效依赖。更新后完全重启，原有商店通过读档恢复图片，不需要拆店；不改变商品、价格或补货。
+
 1.v：修复商店等室内被误判为其他岛屿、角色被拉走而镜头留在空房间的问题；室内不记录为室外安全点，出门保留独岛检查并同步随从落点。更新后完全重启游戏，可使用原存档复测。
 
 1.u：修复风向标、船炮、炸药等间接挖宝跳过新增掉落的问题；修复内容包状态误判和哈姆雷特兼容的海难存档跳过加载的问题。个人金块保底仍只统计角色亲手挖掘。更新测试目录后须完全退出并重启游戏；未挖开的旧宝藏也会生效。
@@ -121,3 +123,6 @@ Native checks run every 10 seconds. Total Oinc value includes the backpack. Effe
 
 
 Version 1.v preserves native shop/house/Town Hall entry, room movement, room loading and camera transitions. Interior terrain is separate from outdoor islands and never overwrites the last outdoor safe point. Exits to forbidden islands are redirected through the native interior-spawner teleport so the player and followers stay together; optional casino access is respected. Existing saves are supported after a full restart with the updated mod.
+
+
+Version 1.w preloads both native inventory animation atlases, shop displays, shelves, doors and Hamlet sound dependencies for Shipwrecked. Product images and price labels use animation symbols in addition to normal inventory icons. Existing shops restore their images through native save loading; no shop rebuilding or price/restock changes are required. Fully restart after updating.

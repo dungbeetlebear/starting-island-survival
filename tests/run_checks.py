@@ -442,4 +442,6 @@ from excavation_checks import run_checks as run_excavation_checks
 run_excavation_checks(runtime, check)
 from interior_checks import run_checks as run_interior_checks
 run_interior_checks(runtime, check)
+from asset_checks import run_checks as run_asset_checks
+run_asset_checks(runtime, check)
 print("All checks passed. In-game verification is still required.")

@@ -1,6 +1,6 @@
 # 初始岛生存 Mod 工作区
 
-- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.v`。
+- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.w`。
 - `tests/`：逻辑回归检查，随 GitHub 仓库保存，不需要上传创意工坊。
 - 已保留原发布版的 Git 基线，便于查看本次修改和回退。
 - Steam 原目录未改动。后续继续编辑本工作区的 `mod/`。
@@ -95,3 +95,12 @@ The `mod/` folder contains the complete Workshop mod. This repository also inclu
 出门仍检查实际室外落点，禁止岛屿的出口会通过原版传送流程改为合法安全点，角色及随从一起移动；赌博机岛仅在允许登陆时可作为出口落点。更新本地测试目录并完全重启游戏，再进入原存档测试；本修复不要求重建世界。
 
 Version 1.v fixes players being pulled out of shops/houses while the camera remains indoors. Interior terrain is excluded from outdoor island membership, spawn-island collection and outdoor safe-point history. Native indoor movement and loading are preserved. Door exits still validate the outdoor destination, moving the player and followers together to a permitted safe point when necessary. Casino exits depend on the casino-landing setting. Fully restart after replacing the test mod; existing saves can be used.
+
+
+## 1.w 商店图片与资源依赖
+
+补齐海难中动态创建哈姆雷特商店时缺少的资源预加载：两套原版背包图集及对应 `ATLAS_BUILD`（商品、价格牌、置物架图案）、原版展示台／置物架／房门依赖，以及哈姆雷特音效包与音效数据。背包图标可见不代表展示台需要的动画图集已加载，二者分别处理。保持原版选图、商品、价格与补货逻辑。
+
+更新本地测试目录后完全退出并重启游戏，再进入原存档。已有商店及货架会按原版读档流程重绘图片，不需拆店或重建世界。新增资源检查直接执行原版商品／价格／货架绘图及商店读档逻辑，确认其引用的两套图集和图片符号实际存在；原有房间、随从、挖宝、开关及市长检查继续通过。当前18组检查不能代替游戏引擎内的图片显示及稳定性复测。此前闪退日志没有留下可定位的Lua错误堆栈，尚未确认闪退根因。
+
+Version 1.w explicitly preloads both native inventory atlases and their animation builds for shop product/price signs and shelves, the native display/shelf/door prefabs, and Hamlet sound dependencies in Shipwrecked. Native product selection, prices, restocking and saved stock are preserved. Fully restart after updating the test mod; existing shops redraw their icons through native loading without rebuilding. Eighteen logic/integration groups pass, including native drawing bindings; engine rendering and the earlier crash still require in-game verification.
