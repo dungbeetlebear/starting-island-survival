@@ -440,4 +440,6 @@ from hamlet_checks import run_checks as run_hamlet_checks
 run_hamlet_checks(runtime, check)
 from excavation_checks import run_checks as run_excavation_checks
 run_excavation_checks(runtime, check)
+from interior_checks import run_checks as run_interior_checks
+run_interior_checks(runtime, check)
 print("All checks passed. In-game verification is still required.")

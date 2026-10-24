@@ -244,6 +244,26 @@ AddComponentPostInit("teleporter", function(c)
     end
 end)
 
+-- Doors use the interior spawner's Physics teleport, bypassing Entity:Teleport.
+-- Preserve the native room/camera transition and move followers with the same
+-- corrected exterior destination if an exit points to a forbidden island.
+AddComponentPostInit("interiorspawner", function(c)
+    local execute=c.ExecuteTeleport
+    if not execute then return end
+    c.ExecuteTeleport=function(self,doer,destination,direction,...)
+        local home=island()
+        if home and home.ready and doer and doer:HasTag("player") then
+            local pos=destination and (destination.prefab and point(destination) or destination)
+            if forbidden(pos) then
+                local safe=home:GetSafePoint(doer,false)
+                if not safe then return false end
+                destination=G.Vector3(safe[1],0,safe[2])
+            end
+        end
+        return execute(self,doer,destination,direction,...)
+    end
+end)
+
 -- Transform and Physics are engine userdata: their methods must never be replaced.
 -- Filter the Lua teleport entry point, then correct unexpected moves each frame.
 AddPlayerPostInit(function(p)
@@ -269,6 +289,9 @@ AddPlayerPostInit(function(p)
         local c = island()
         if not c or not c.ready then return end
         local x,y,z = p.Transform:GetWorldPosition()
+        -- Keep indoor movement, room changes and indoor loads native. Never
+        -- overwrite the last outdoor safe point with the shared room origin.
+        if c:IsInterior(x,z) then return end
         -- Boat physics can overlap a coastal land tile without disembarking.
         -- Keep vanilla steering there; landing is blocked by the action/driver.
         local d = p.components.driver

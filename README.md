@@ -1,6 +1,6 @@
 # 初始岛生存 Mod 工作区
 
-- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.u`。
+- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.v`。
 - `tests/`：逻辑回归检查，随 GitHub 仓库保存，不需要上传创意工坊。
 - 已保留原发布版的 Git 基线，便于查看本次修改和回退。
 - Steam 原目录未改动。后续继续编辑本工作区的 `mod/`。
@@ -86,3 +86,12 @@ The `mod/` folder contains the complete Workshop mod. This repository also inclu
 修复风向标、船炮和爆炸等非玩家实体挖开宝藏时跳过新增掉落的问题；修复把内容包启用标志当作安装状态的问题，并允许游戏为哈姆雷特兼容的海难存档加载 Mod。怪物和植物材料仍分别受各自开关控制，默认值不变。
 
 将工作区 `mod/` 更新到本地测试目录后，完全退出并重启游戏，确认版本为 `1.u`；开启“挖宝哈姆雷特怪物”和“挖宝植物材料”，再使用先前的生成指令测试。已生成但尚未挖开的宝藏也会使用修复后的规则，无需重建世界。未安装哈姆雷特时，相关拓展不生效。
+
+
+## 1.v 室内兼容修复
+
+修复进入商店、住宅或市政厅后被独岛校验拉回室外，导致镜头仍留在空房间的问题。原版室内使用独立坐标区和 `GROUND.INTERIOR` 地面类型，现在从室外岛屿判定、出生岛收集和安全落点记录中排除；室内移动及读档正常保留。
+
+出门仍检查实际室外落点，禁止岛屿的出口会通过原版传送流程改为合法安全点，角色及随从一起移动；赌博机岛仅在允许登陆时可作为出口落点。更新本地测试目录并完全重启游戏，再进入原存档测试；本修复不要求重建世界。
+
+Version 1.v fixes players being pulled out of shops/houses while the camera remains indoors. Interior terrain is excluded from outdoor island membership, spawn-island collection and outdoor safe-point history. Native indoor movement and loading are preserved. Door exits still validate the outdoor destination, moving the player and followers together to a permitted safe point when necessary. Casino exits depend on the casino-landing setting. Fully restart after replacing the test mod; existing saves can be used.

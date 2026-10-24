@@ -1,4 +1,4 @@
-# 初始岛生存（单机海难）1.u
+# 初始岛生存（单机海难）1.v
 
 首次使用请新建海难世界。出生岛记录、最近的安全位置和挖宝记录随存档保存。
 
@@ -28,6 +28,8 @@
 语言选择作用于模组名称、简介、配置及禁止登陆提示。保存后重新打开配置页可刷新配置文字；新启用 Mod 时需按原版流程重启。两列配置下方显示当前选中项的中英文说明。退格调试面板保留英文，以避免原版调试字体缺字。
 
 ## 独岛限制
+
+商店、住宅、市政厅和其他原版房间的室内地面不属于室外岛屿，不再触发非法登陆拉回，也不会覆盖室外安全位置。进出房间仍使用原版镜头、房间加载及随从传送；室内移动和室内读档正常。出门若指向禁止登陆的室外岛屿，角色与随从一起改到合法安全点，赌博机岛受登陆开关控制。
 
 - 鼠标、手柄和排队动作均检查登陆、闪现；其他岛不能下船。
 - 可选允许登陆赌博机所在的整座连通岛屿，其他岛仍禁止登陆。赌博机岛范围与出生岛范围分别保存；关闭后，岛上的角色读档时返回允许的安全位置。
@@ -70,6 +72,8 @@
 - 退格面板显示海妖、季节事件、已摘智慧果的倒计时，采用24m 06s格式，使用ASCII单位避免调试字体缺字；海妖冷却归零或已在场时隐藏。
 
 海妖冷却归零后仍需满足原版深海拖网条件。首雨时间为预计值。源码逻辑检查不替代完整实机游玩验证。
+
+1.v：修复商店等室内被误判为其他岛屿、角色被拉走而镜头留在空房间的问题；室内不记录为室外安全点，出门保留独岛检查并同步随从落点。更新后完全重启游戏，可使用原存档复测。
 
 1.u：修复风向标、船炮、炸药等间接挖宝跳过新增掉落的问题；修复内容包状态误判和哈姆雷特兼容的海难存档跳过加载的问题。个人金块保底仍只统计角色亲手挖掘。更新测试目录后须完全退出并重启游戏；未挖开的旧宝藏也会生效。
 
@@ -114,3 +118,6 @@ Native checks run every 10 seconds. Total Oinc value includes the backpack. Effe
 | 50–99 | 5% |
 | 100–149 | 10% |
 | ≥150 | 20% |
+
+
+Version 1.v preserves native shop/house/Town Hall entry, room movement, room loading and camera transitions. Interior terrain is separate from outdoor islands and never overwrites the last outdoor safe point. Exits to forbidden islands are redirected through the native interior-spawner teleport so the player and followers stay together; optional casino access is respected. Existing saves are supported after a full restart with the updated mod.

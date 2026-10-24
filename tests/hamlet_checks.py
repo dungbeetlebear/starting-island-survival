@@ -7,7 +7,10 @@ def run_checks(runtime, check):
         lua = runtime("{fishbone_vacuum=false}")
         lua.execute('''
             assert(not HOOKS.prefab.twister)
-            assert(not HOOKS.component.shopinterior and not HOOKS.component.interiorspawner)
+            assert(not HOOKS.component.shopinterior)
+            local create=function() end
+            local rooms={CreateRoom=create}; init("component","interiorspawner",rooms)
+            assert(rooms.CreateRoom==create) -- only the door-safety hook is always installed
             assert(not SIS_CONFIG.alloy_deconstruction and not SIS_CONFIG.hamlet_treasure_creatures)
             assert(not SIS_CONFIG.island_bandits and not SIS_CONFIG.townhall_mayor)
             assert(not SIS_CONFIG.treasure_materials and not SIS_CONFIG.shop_horns)
@@ -17,7 +20,10 @@ def run_checks(runtime, check):
                          'island_bandits=true,townhall_mayor=true,treasure_materials=true,shop_horns=true}', hamlet=False)
         no_dlc.execute('''
             assert(not SIS_HAS_HAMLET and not PrefabFiles)
-            assert(not HOOKS.component.shopinterior and not HOOKS.component.interiorspawner)
+            assert(not HOOKS.component.shopinterior)
+            local create=function() end
+            local rooms={CreateRoom=create}; init("component","interiorspawner",rooms)
+            assert(rooms.CreateRoom==create)
             local loot={snake=3,goldnugget=1}; SIS_AdjustDugLoot(loot)
             assert(loot.snake==3 and loot.goldnugget==1)
         ''')

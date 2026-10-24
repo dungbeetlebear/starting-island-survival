@@ -13,7 +13,15 @@ local function key(x, z) return x .. ":" .. z end
 function Island:IsLand(x, z)
     local m = self.inst.Map
     local t = m:GetTileAtPoint(x, 0, z)
-    return t ~= GROUND.INVALID and t ~= GROUND.IMPASSABLE and not m:IsWater(t)
+    -- Hamlet rooms use a separate, shared coordinate area. They are neither
+    -- an outdoor island nor a valid saved outdoor landing/spawn-island tile.
+    return t ~= GROUND.INVALID and t ~= GROUND.IMPASSABLE
+        and t ~= GROUND.INTERIOR and not m:IsWater(t)
+end
+
+function Island:IsInterior(x, z)
+    return GROUND.INTERIOR ~= nil
+        and self.inst.Map:GetTileAtPoint(x, 0, z) == GROUND.INTERIOR
 end
 
 function Island:IsAllowed(x, z)
