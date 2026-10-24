@@ -1,0 +1,109 @@
+local G = GLOBAL
+G.require("map/treasurehunt")
+local hat_depth, loot_depth = 0, 0
+local dig_context
+local function active()
+    local w = G.GetWorld()
+    return w and w.components.sisland
+end
+local function scoped(fn, enter, leave, ...)
+    enter()
+    local result = {G.pcall(fn,...)}
+    leave()
+    if not result[1] then G.error(result[2]) end
+    return G.unpack(result,2)
+end
+AddPrefabPostInit("woodlegshat",function(hat)
+    local fuel = hat.components.fueled
+    local old = fuel and fuel.sectionfn
+    if old then
+        fuel.sectionfn = function(...)
+            if not active() then return old(...) end
+            return scoped(old,function() hat_depth=hat_depth+1 end,function() hat_depth=hat_depth-1 end,...)
+        end
+    end
+end)
+AddPrefabPostInit("buriedtreasure",function(t)
+    t._sis_hat = hat_depth>0
+    local save, load = t.OnSave, t.OnLoad
+    t.OnSave = function(inst,data)
+        if save then save(inst,data) end
+        data.sis_hat = inst._sis_hat or nil
+    end
+    t.OnLoad = function(inst,data,...)
+        inst._sis_hat = data and data.sis_hat or false
+        if load then return load(inst,data,...) end
+    end
+    local work=t.components.workable
+    local finish=work and work.onfinish
+    if finish then
+        work.onfinish=function(inst,worker,...)
+            if not active() or not worker or not worker:HasTag("player") or worker.prefab=="woodlegs" then
+                return finish(inst,worker,...)
+            end
+            local digs=worker._sis_treasure_digs or 0
+            -- Choose the original preset with three guaranteed nuggets; do not
+            -- tack an extra gold item onto an otherwise unrelated preset.
+            if digs==4 and not worker._sis_treasure_gold then inst.loot="gems" end
+            local previous=dig_context
+            local context={gold=false,generated=false}
+            local result={G.pcall(function(...)
+                dig_context=context
+                return finish(inst,worker,...)
+            end,...)}
+            dig_context=previous
+            if not result[1] then G.error(result[2]) end
+            if context.generated then
+                worker._sis_treasure_digs=digs+1
+                worker._sis_treasure_gold=worker._sis_treasure_gold or context.gold
+            end
+            return G.unpack(result,2)
+        end
+    end
+end)
+
+local olddef = G.GetTreasureLootDefinition
+G.GetTreasureLootDefinition = function(name)
+    local original = olddef(name)
+    if (loot_depth==0 and not dig_context) or not original then return original end
+    local copy = {}
+    for k,v in pairs(original) do copy[k]=v end
+    if dig_context then
+        local context,custom=dig_context,original.custom_lootfn
+        copy.custom_lootfn=function(loot)
+            if custom then custom(loot) end
+            context.generated=true
+            context.gold=context.gold or (loot.goldnugget or 0)>0
+        end
+    end
+    if loot_depth>0 and original.chance_loot then
+        copy.chance_loot = {}
+        for k,v in pairs(original.chance_loot) do
+            copy.chance_loot[k] = (k=="yellowgem" or k=="greengem") and math.min(1,2*v) or v
+        end
+    end
+    if loot_depth>0 and original.random_loot then
+        local total, gems = 0,0
+        for k,v in pairs(original.random_loot) do
+            total=total+v
+            if k=="yellowgem" or k=="greengem" then gems=gems+v end
+        end
+        if gems>0 and 2*gems<total then
+            copy.random_loot={}
+            -- Double the probability, not just the raw weight. Keep relative
+            -- probabilities of every other item unchanged.
+            local other_scale=(total-2*gems)/(total-gems)
+            for k,v in pairs(original.random_loot) do
+                copy.random_loot[k]=(k=="yellowgem" or k=="greengem") and 2*v or v*other_scale
+            end
+        end
+    end
+    return copy
+end
+local spawnchest=G.SpawnTreasureChest
+G.SpawnTreasureChest=function(name,dropper,...)
+    if active() and dropper and dropper.inst._sis_hat then
+        return scoped(spawnchest,function() loot_depth=loot_depth+1 end,function() loot_depth=loot_depth-1 end,name,dropper,...)
+    end
+    return spawnchest(name,dropper,...)
+end
