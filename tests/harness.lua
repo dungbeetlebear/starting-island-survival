@@ -1,4 +1,7 @@
 GLOBAL=_G
+PORKLAND_DLC=3
+IsDLCInstalled=function() return HAS_HAMLET~=false end
+IsDLCEnabled=function() return HAMLET_ENABLED~=false end
 modname="workshop-3824478922"
 LOC={GetLocaleCode=function() return GAME_LOCALE or "en" end}
 function load_modinfo()
@@ -78,17 +81,22 @@ LOOT={sample={chance_loot={yellowgem=.2,greengem=.1,redgem=.4},
 GetTreasureLootDefinition=function(name) return LOOT[name] end
 SpawnTreasureChest=function(name,dropper)
     local def=GetTreasureLootDefinition(name)
-    if def and def.custom_lootfn then def.custom_lootfn(def.loot or {}) end
+    local loot={}
+    for k,v in pairs(def and def.loot or {}) do loot[k]=v end
+    if def and def.custom_lootfn then def.custom_lootfn(loot) end
+    LAST_GENERATED_LOOT=loot
     return def
 end
 local original_require=require
 require=function(name)
     if name=="map/treasurehunt" then return true end
+    if name=="prefabs/pig_shop_defs" then return SHOP_DEFS end
     if name=="widgets/text" then
         return function(font,size,text)
             return {font=font,size=size,text=text,
                 SetString=function(self,value) self.text=value end,
-                SetPosition=function() end,SetRegionSize=function() end,SetHAlign=function() end}
+                SetPosition=function() end,SetRegionSize=function() end,SetHAlign=function() end,
+                EnableWordWrap=function() end}
         end
     end
     return original_require(name)

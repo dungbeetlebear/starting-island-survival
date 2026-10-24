@@ -1,6 +1,6 @@
 # 初始岛生存 Mod 工作区
 
-- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.s`。
+- `mod/`：可供本地测试和上传 Steam 创意工坊的完整 Mod 文件，版本 `1.t`。
 - `tests/`：逻辑回归检查，随 GitHub 仓库保存，不需要上传创意工坊。
 - 已保留原发布版的 Git 基线，便于查看本次修改和回退。
 - Steam 原目录未改动。后续继续编辑本工作区的 `mod/`。
@@ -16,6 +16,19 @@
 | 幸运帽黄绿宝石倍率 | 1 / 1.5 / 2 / 3 / 4 / 5 / 10 倍 | 2 倍 |
 | 季节时间 | 原版时间 / 风季与火山季各15天（全年70天） | 全年70天 |
 | 蜘蛛巢靠岸 | 至少一个 / 不调整 | 至少一个 |
+| 铸铁块拆解 | 关闭 / 开启；每块返还4铁矿石 | 关闭 |
+| 豹卷风吸鱼骨 | 允许吸入 / 原版 | 允许吸入 |
+| 挖宝哈姆雷特怪物 | 关闭 / 开启；小型、有攻击力的生物 | 关闭 |
+| 城镇盗贼猪人 | 关闭 / 开启；沿用哈姆雷特原机制 | 关闭 |
+| 市政厅自带市长 | 关闭 / 开启；新建市政厅自带一位 | 关闭 |
+| 挖宝植物材料 | 关闭 / 开启；修剪物、荧光果各1至2个 | 关闭 |
+| 奇物店出售角 | 关闭 / 开启；守护者之角、河鹿角 | 关闭 |
+
+新增功能默认关闭，鱼骨吸入延续开启。哈姆雷特拓展需要安装并启用哈姆雷特内容；缺少时不加载相关功能，模组的游玩范围仍只限海难。
+
+盗贼沿用哈姆雷特原版的携带钱币、城市地皮、附近城镇猪屋掩体、昼夜概率、偷窃、逃跑及击杀冷却，仅增加初始岛至少3栋合格房屋（歪斜小木屋不计）的条件，藏宝点和挖出的箱子均只在初始岛。没有钱币、城市地皮或猪屋掩体时不会产生盗贼。
+
+挖宝怪物池保留原来的6种，并加入14种有攻击能力的哈姆雷特小型生物，20种等概率抽取，不提高原有怪物事件概率或数量；排除无辜动物和大型生物。具体名单见 `mod/README.md`。
 
 已删除 F 自动攻击跳过墙的功能。兼容声明仅开启海难，并对各项初始化增加海难世界检查。
 
@@ -37,7 +50,7 @@
 
 模组名称、简介、全部配置标签、选项说明、选项值和禁止登陆提示支持中英文。默认跟随游戏语言：中文使用中文，其他语言回退英文；也可在最上方“语言 / Language”中手动选择。保存后重新打开配置页刷新文字，重新进入世界应用游戏提示。首次启用 Mod 仍需按原版流程重启游戏。
 
-原版单机配置界面不展示 `hover` 说明，本 Mod 使用配置页空白的右栏展示当前选中项的详细说明。退格调试面板沿用英文和 ASCII 时间单位，以免原版调试字体显示方框；这不影响简介、配置和角色提示的语言切换。
+原版单机配置界面不展示 `hover` 说明，本 Mod 在两列配置下方展示当前选中项的详细说明。退格调试面板沿用英文和 ASCII 时间单位，以免原版调试字体显示方框；这不影响简介、配置和角色提示的语言切换。
 
 GitHub 仓库：[dungbeetlebear/starting-island-survival](https://github.com/dungbeetlebear/starting-island-survival)，已设为公有。
 
@@ -55,5 +68,14 @@ Choose **Language → Auto / 中文 / English** in the mod configuration. Auto u
 | Gem chance | 1 / 1.5 / 2 / 3 / 4 / 5 / 10x | 2x; Lucky Hat yellow/green gems only |
 | Season length | Vanilla / 70-day year | 70 days: 20 Mild, 15 Hurricane, 20 Monsoon, 15 Dry |
 | Coastal nests | At least one / Unchanged | Ensure at least one den is in boat cannon range |
+| Alloy salvage | Off / On; one Alloy returns 4 Iron Ore | Off |
+| Fishbone vacuum | Allowed / Vanilla | Allowed |
+| Treasure monsters | Off / On; small Hamlet creatures capable of attacking | Off |
+| Town bandits | Off / On; native Hamlet rules | Off |
+| Town Hall mayor | Off / On; one mayor in each new player Town Hall | Off |
+| Plant loot | Off / On; Clippings and Light Bulbs, 1-2 each when selected | Off |
+| Shop horns | Off / On; Guardian's Horn and Hippopotamoose Antler | Off |
+
+All new optional features default to Off; Fishbone suction stays On. Hamlet extensions require installed and enabled Hamlet content. Bandits use the native Hamlet currency, city ground, nearby town-pig-house cover, time-of-day odds, stealing, escape and death cooldown rules, with an additional three-building threshold on the starting island, excluding Slanty Shanties. Their treasure always stays on the starting island. The treasure monster switch shares the original monster slots uniformly across 6 original and 14 attacking Hamlet creatures without increasing encounter frequency or count. Innocent wildlife and large creatures are excluded.
 
 The `mod/` folder contains the complete Workshop mod. This repository also includes documentation and Lua 5.1 regression checks in `tests/`; local test dependencies are excluded. Only upload `mod/` to Steam Workshop. The original Steam installation is kept separate from this workspace.

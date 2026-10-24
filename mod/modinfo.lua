@@ -2,7 +2,7 @@
 sis_i18n = {
     zh = {
         name = "初始岛生存",
-        description = "仅限海难：只能在出生岛和海上活动。\n非船长出生自带幸运帽。\n交易冷却、金块保底、宝石倍率可配置。\n季节、蜘蛛巢靠岸、赌博机岛登陆可配置。\n退格查看重要倒计时。",
+        description = "仅限海难：只能在出生岛和海上活动。\n非船长出生自带幸运帽。\n交易、保底、季节与登陆等可配置。\n可选哈姆雷特挖宝、城镇和商店拓展。\n退格查看重要倒计时。",
         config = {
             language = {
                 label = "语言 / Language",
@@ -39,6 +39,41 @@ sis_i18n = {
                 hover = "全图至少一个巢在船炮射程内。已有符合条件的巢时不搬动，否则最多移动一个；关闭不复原旧档位置。",
                 options = {"至少一个", "不调整"},
             },
+            alloy_deconstruction = {
+                label = "铸铁块拆解",
+                hover = "允许拆解法杖将每个铸铁块分解为4个铁矿石，保留原版法杖消耗；不添加可制作配方。需要哈姆雷特内容。",
+                options = {"关闭", "开启"},
+            },
+            fishbone_vacuum = {
+                label = "豹卷风吸鱼骨",
+                hover = "允许豹卷风吸入地上的鱼骨，背包和手持鱼骨不受影响；死亡或移除时释放鱼骨。关闭恢复原版。",
+                options = {"允许吸入", "原版"},
+            },
+            hamlet_treasure_creatures = {
+                label = "挖宝哈姆雷特怪物",
+                hover = "原有怪物名额均匀抽取原版及哈姆雷特有攻击力的小型生物；不增加总数量。排除无辜动物、Boss和大型生物；捕蝇草最小阶段，雷鸟无电。需要启用哈姆雷特内容。",
+                options = {"关闭", "开启"},
+            },
+            island_bandits = {
+                label = "城镇盗贼猪人",
+                hover = "初始岛至少3栋住宅或商店，歪斜小木屋不计数。沿用哈姆雷特钱币、城市地皮、附近城镇猪屋、昼夜概率和冷却规则；宝藏仅在初始岛。需要哈姆雷特。",
+                options = {"关闭", "开启"},
+            },
+            townhall_mayor = {
+                label = "市政厅自带市长",
+                hover = "新建玩家市政厅的室内自带一位市长，随房间保存，读档不重复生成；不补发旧市政厅。需要哈姆雷特内容。",
+                options = {"关闭", "开启"},
+            },
+            treasure_materials = {
+                label = "挖宝植物材料",
+                hover = "在含纸张或绳索的挖宝随机资源池加入树篱修剪物和荧光果，每种抽中时给1至2个；赌博机直接奖励不变。需要哈姆雷特。",
+                options = {"关闭", "开启"},
+            },
+            shop_horns = {
+                label = "奇物店出售角",
+                hover = "售卖龙鳞的奇物商店加入守护者之角（50呼噜币）和河鹿角（30呼噜币），与原商品均匀抽取；刷新后可能上架。需要哈姆雷特。",
+                options = {"关闭", "开启"},
+            },
         },
         messages = {
             home_only = "只能登陆出生岛。",
@@ -47,7 +82,7 @@ sis_i18n = {
     },
     en = {
         name = "Starting Island Survival",
-        description = "Shipwrecked: stay on your home island or at sea.\nNon-Woodlegs start with a Lucky Hat.\nConfigure trades, gold pity and gem odds.\nSet seasons, coastal nests and casino access.\nBackspace: event timers.",
+        description = "Shipwrecked: stay on your home island or at sea.\nNon-Woodlegs start with a Lucky Hat.\nConfigure trades, gold pity, seasons and access.\nOptional Hamlet treasure, town and shop features.\nBackspace: event timers.",
         config = {
             language = {
                 label = "语言 / Language",
@@ -84,6 +119,41 @@ sis_i18n = {
                 hover = "Ensure at least one spider den is in boat cannon range. Move none if one already qualifies; otherwise move at most one. Disabling does not undo saved positions.",
                 options = {"At least one", "Unchanged"},
             },
+            alloy_deconstruction = {
+                label = "Alloy salvage",
+                hover = "Deconstruction Staff: one Alloy returns 4 Iron Ore, with vanilla staff costs. Adds no crafting recipe. Hamlet content required.",
+                options = {"Off", "On"},
+            },
+            fishbone_vacuum = {
+                label = "Fishbone vacuum",
+                hover = "Sealnado can inhale ground Fishbones, releasing them on death or removal. Held Fishbones remain safe. Off restores vanilla behavior.",
+                options = {"Allowed", "Vanilla"},
+            },
+            hamlet_treasure_creatures = {
+                label = "Treasure monsters",
+                hover = "Share existing monster slots equally with small Hamlet creatures capable of attacking. No innocent wildlife, bosses or large creatures. Flytraps start small; Thunderbirds are non-electric. Hamlet must be enabled.",
+                options = {"Off", "On"},
+            },
+            island_bandits = {
+                label = "Town bandits",
+                hover = "Require 3+ home-island homes/shops, excluding Slanty Shanties. Use Hamlet's money, city ground, nearby town-pig-house cover, day/night odds and cooldown rules. Treasure stays on the starting island. Hamlet required.",
+                options = {"Off", "On"},
+            },
+            townhall_mayor = {
+                label = "Town Hall mayor",
+                hover = "New player Town Halls include one indoor mayor, saved with the room. No duplicate on reload or retrofit of old halls. Hamlet content required.",
+                options = {"Off", "On"},
+            },
+            treasure_materials = {
+                label = "Plant loot",
+                hover = "Add Clippings and Light Bulbs to dug treasure pools with Papyrus/Rope. Each selected material yields 1-2. Direct slot-machine prizes stay unchanged. Hamlet required.",
+                options = {"Off", "On"},
+            },
+            shop_horns = {
+                label = "Shop horns",
+                hover = "The Antiques shop may stock Guardian's Horn (50 Oincs) and Hippopotamoose Antler (30), equally with existing stock on restock. Hamlet content required.",
+                options = {"Off", "On"},
+            },
         },
         messages = {
             home_only = "You can only land on your starting island.",
@@ -99,7 +169,7 @@ local text = sis_i18n[chinese and "zh" or "en"]
 name = text.name
 description = text.description
 author = "Starting Island Survival"
-version = "1.s"
+version = "1.t"
 api_version = 6
 priority = -10
 dont_starve_compatible = false
@@ -121,6 +191,13 @@ configuration_options = {
     {name="gem_multiplier", default=2, options={{data=1}, {data=1.5}, {data=2}, {data=3}, {data=4}, {data=5}, {data=10}}},
     {name="season_length", default="70_days", options={{data="vanilla"}, {data="70_days"}}},
     {name="coastal_spiderden", default=true, options={{data=true}, {data=false}}},
+    {name="alloy_deconstruction", default=false, options={{data=false}, {data=true}}},
+    {name="fishbone_vacuum", default=true, options={{data=true}, {data=false}}},
+    {name="hamlet_treasure_creatures", default=false, options={{data=false}, {data=true}}},
+    {name="island_bandits", default=false, options={{data=false}, {data=true}}},
+    {name="townhall_mayor", default=false, options={{data=false}, {data=true}}},
+    {name="treasure_materials", default=false, options={{data=false}, {data=true}}},
+    {name="shop_horns", default=false, options={{data=false}, {data=true}}},
 }
 for i=1,#configuration_options do
     local option = configuration_options[i]

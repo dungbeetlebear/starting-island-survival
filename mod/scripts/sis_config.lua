@@ -14,6 +14,13 @@ SIS_CONFIG = {
     gem_multiplier = option("gem_multiplier", 2),
     season_length = option("season_length", "70_days"),
     coastal_spiderden = option("coastal_spiderden", true),
+    alloy_deconstruction = option("alloy_deconstruction", false),
+    fishbone_vacuum = option("fishbone_vacuum", true),
+    hamlet_treasure_creatures = option("hamlet_treasure_creatures", false),
+    island_bandits = option("island_bandits", false),
+    townhall_mayor = option("townhall_mayor", false),
+    treasure_materials = option("treasure_materials", false),
+    shop_horns = option("shop_horns", false),
 }
 
 -- modmain also loads in the frontend, before a save/world has been selected.
@@ -21,7 +28,12 @@ SIS_CONFIG = {
 SIS_IsShipwrecked = function(inst)
     if inst and inst.prefab == "shipwrecked" then return true end
     local world = GLOBAL.GetWorld()
-    if world then return world.prefab == "shipwrecked" end
+    -- Base-world components (notably interiorspawner) are constructed before
+    -- the wrapper prefab assigns "shipwrecked". Use the selected save mode
+    -- during that short phase, while still rejecting finished other worlds.
+    if world and world.prefab and world.prefab~="world" then
+        return world.prefab == "shipwrecked"
+    end
     local index = GLOBAL.SaveGameIndex
     return index and index:GetCurrentSaveSlot()
         and index:GetCurrentMode() == "shipwrecked" or false

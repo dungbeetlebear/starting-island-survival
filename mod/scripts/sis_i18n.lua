@@ -72,27 +72,30 @@ if index then
     end
 end
 
--- Vanilla single-player DS ignores hover fields. Put focused-option help in
--- this mod's empty right column without changing other mods' configuration UI.
+-- Vanilla single-player DS ignores hover fields. Keep help below both option
+-- columns so adding options never hides a spinner. Other mods are unchanged.
 AddClassPostConstruct("screens/modconfigurationscreen", function(screen)
     if screen.modname ~= modname then return end
     local Text = G.require("widgets/text")
-    local help = screen.root:AddChild(Text(G.DEFAULTFONT, 23, ""))
-    help:SetPosition(220, -20, 0)
-    help:SetRegionSize(350, 320)
+    local help = screen.root:AddChild(Text(G.DEFAULTFONT, 17, ""))
+    help:SetPosition(0, -248, 0)
+    help:SetRegionSize(880, 48)
     help:SetHAlign(G.ANCHOR_MIDDLE)
+    help:EnableWordWrap(true)
     local refresh = screen.RefreshOptions
     local function bind(self)
         local info = index and index:GetModInfo(modname) or modinfo
         local settings = info.configuration_options
         local offset = self.option_offset or 0
-        for i, spinner in ipairs(self.left_spinners or {}) do
-            local option = settings[offset+i]
-            if option then
-                local gain = spinner.OnGainFocus
-                spinner.OnGainFocus = function(widget, ...)
-                    if gain then gain(widget, ...) end
-                    help:SetString(option.hover or "")
+        for column, spinners in ipairs({self.left_spinners or {}, self.right_spinners or {}}) do
+            for i, spinner in ipairs(spinners) do
+                local option = settings[offset+(column-1)*7+i]
+                if option then
+                    local gain = spinner.OnGainFocus
+                    spinner.OnGainFocus = function(widget, ...)
+                        if gain then gain(widget, ...) end
+                        help:SetString(option.hover or "")
+                    end
                 end
             end
         end

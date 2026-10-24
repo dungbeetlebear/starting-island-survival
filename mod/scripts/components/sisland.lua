@@ -24,6 +24,32 @@ function Island:IsAllowed(x, z)
         and self:IsLand(x, z)
 end
 
+function Island:IsHome(x, z)
+    if not self.ready or not self:IsLand(x,z) then return false end
+    local tx,tz=self.inst.Map:GetTileCoordsAtPoint(x,0,z)
+    return self.tiles[key(tx,tz)]==true
+end
+
+-- A home-only point for bandit treasure, independent of casino permissions
+-- and the player's most recently saved legal landing position.
+function Island:GetHomePoint()
+    if not self.ready then return nil end
+    local hx,hz=self.inst.Map:GetTileCoordsAtPoint(self.home[1],0,self.home[2])
+    local chosen,count=nil,0
+    for tile in pairs(self.tiles) do
+        local tx,tz=string.match(tile,"^(%-?%d+):(%-?%d+)$")
+        if tx and tz then
+            local x,z=self.home[1]+4*(tonumber(tx)-hx),self.home[2]+4*(tonumber(tz)-hz)
+            local occupied=TheSim and #TheSim:FindEntities(x,0,z,2,{"structure"})>0
+            if self:IsHome(x,z) and not occupied then
+                count=count+1
+                if math.random(1,count)==1 then chosen={x,z} end
+            end
+        end
+    end
+    return chosen or self.home
+end
+
 function Island:IsForbidden(x, z)
     return self.ready and self:IsLand(x, z) and not self:IsAllowed(x, z)
 end

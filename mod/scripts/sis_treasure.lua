@@ -38,22 +38,26 @@ AddPrefabPostInit("buriedtreasure",function(t)
     local finish=work and work.onfinish
     if finish then
         work.onfinish=function(inst,worker,...)
-            if not active() or not worker or not worker:HasTag("player") or worker.prefab=="woodlegs" then
+            if not active() or not worker or not worker:HasTag("player") then
                 return finish(inst,worker,...)
             end
+            local track=worker.prefab~="woodlegs"
             local digs=worker._sis_treasure_digs or 0
             -- Choose the original preset with three guaranteed nuggets; do not
             -- tack an extra gold item onto an otherwise unrelated preset.
-            if SIS_CONFIG.gold_guarantee and digs==4 and not worker._sis_treasure_gold then inst.loot="gems" end
+            if track and SIS_CONFIG.gold_guarantee and digs==4 and not worker._sis_treasure_gold then inst.loot="gems" end
             local previous=dig_context
             local context={gold=false,generated=false}
+            local depth=SIS_DUG_TREASURE_DEPTH or 0
             local result={G.pcall(function(...)
                 dig_context=context
+                SIS_DUG_TREASURE_DEPTH=depth+1
                 return finish(inst,worker,...)
             end,...)}
             dig_context=previous
+            SIS_DUG_TREASURE_DEPTH=depth
             if not result[1] then G.error(result[2]) end
-            if context.generated then
+            if track and context.generated then
                 worker._sis_treasure_digs=digs+1
                 worker._sis_treasure_gold=worker._sis_treasure_gold or context.gold
             end
@@ -72,9 +76,17 @@ G.GetTreasureLootDefinition = function(name)
         local context,custom=dig_context,original.custom_lootfn
         copy.custom_lootfn=function(loot)
             if custom then custom(loot) end
+            SIS_AdjustDugLoot(loot)
             context.generated=true
             context.gold=context.gold or (loot.goldnugget or 0)>0
         end
+    end
+    if dig_context and SIS_CONFIG.treasure_materials and SIS_HAS_HAMLET and original.random_loot
+        and (original.random_loot.papyrus or original.random_loot.rope) then
+        copy.random_loot={}
+        for k,v in pairs(original.random_loot) do copy.random_loot[k]=v end
+        copy.random_loot.clippings=1
+        copy.random_loot.lightbulb=1
     end
     if loot_depth>0 and original.chance_loot then
         copy.chance_loot = {}
@@ -83,8 +95,9 @@ G.GetTreasureLootDefinition = function(name)
         end
     end
     if loot_depth>0 and original.random_loot then
+        local source=copy.random_loot or original.random_loot
         local total, gems = 0,0
-        for k,v in pairs(original.random_loot) do
+        for k,v in pairs(source) do
             total=total+v
             if k=="yellowgem" or k=="greengem" then gems=gems+v end
         end
@@ -94,7 +107,7 @@ G.GetTreasureLootDefinition = function(name)
             -- Preserve relative weights within gems and within other items.
             local multiplier=math.min(SIS_CONFIG.gem_multiplier,total/gems)
             local other_scale=math.max(0,(total-multiplier*gems)/(total-gems))
-            for k,v in pairs(original.random_loot) do
+            for k,v in pairs(source) do
                 local weight=(k=="yellowgem" or k=="greengem") and multiplier*v or v*other_scale
                 -- Vanilla can select a zero-weight entry when its random
                 -- threshold is zero. Omit capped-out entries entirely.

@@ -7,11 +7,13 @@ sys.path.insert(0, str(ROOT / ".tools" / "python"))
 from lupa.lua51 import LuaRuntime
 
 
-def runtime(config="{}", mode="shipwrecked", locale="en"):
+def runtime(config="{}", mode="shipwrecked", locale="en", hamlet=True, hamlet_enabled=True):
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.globals().MOD_ROOT = (ROOT / "mod").as_posix()
     lua.globals().MODE = mode
     lua.globals().GAME_LOCALE = locale
+    lua.globals().HAS_HAMLET = hamlet
+    lua.globals().HAMLET_ENABLED = hamlet_enabled
     lua.execute("CONFIG = " + config)
     lua.execute((ROOT / "tests" / "harness.lua").read_text(encoding="utf-8"))
     lua.execute('dofile(MOD_ROOT .. "/modmain.lua")')
@@ -32,9 +34,11 @@ def syntax_and_metadata():
     lua.execute('''
         assert(shipwrecked_compatible and not hamlet_compatible and not dont_starve_compatible
             and not reign_of_giants_compatible and not dst_compatible)
-        assert(#configuration_options == 7)
+        assert(#configuration_options == 14)
         local expected = {language="auto", octopus_no_cooldown=true, gold_guarantee=true,
-            casino_landing=false, gem_multiplier=2, season_length="70_days", coastal_spiderden=true}
+            casino_landing=false, gem_multiplier=2, season_length="70_days", coastal_spiderden=true,
+            alloy_deconstruction=false,fishbone_vacuum=true,hamlet_treasure_creatures=false,
+            island_bandits=false,townhall_mayor=false,treasure_materials=false,shop_horns=false}
         for _, option in ipairs(configuration_options) do
             assert(option.default == expected[option.name], option.name)
             local found=false
@@ -124,14 +128,16 @@ def internationalization():
             local values={}; for i=1,7 do values[i]={OnGainFocus=function() end} end
             return values
         end
-        local screen={modname=modname,option_offset=0,left_spinners=spinners()}
+        local screen={modname=modname,option_offset=0,left_spinners=spinners(),right_spinners=spinners()}
         screen.root={AddChild=function(_,child) screen.help=child; return child end}
-        screen.RefreshOptions=function(self) self.left_spinners=spinners() end
+        screen.RefreshOptions=function(self) self.left_spinners=spinners(); self.right_spinners=spinners() end
         init("class","screens/modconfigurationscreen",screen)
         screen.left_spinners[3]:OnGainFocus()
         assert(screen.help.text==fresh.sis_i18n.zh.config.gold_guarantee.hover)
         screen:RefreshOptions(); screen.left_spinners[6]:OnGainFocus()
         assert(screen.help.text==fresh.sis_i18n.zh.config.season_length.hover)
+        screen.right_spinners[7]:OnGainFocus()
+        assert(screen.help.text==fresh.sis_i18n.zh.config.shop_horns.hover)
         init("class","screens/modconfigurationscreen",{modname="other"})
         local details=0
         local menu={modnames={modname},currentmod=1,
@@ -418,7 +424,7 @@ def trading():
 
 
 for name, fn in [
-    ("Lua 5.1 syntax and seven settings/defaults", syntax_and_metadata),
+    ("Lua 5.1 syntax and fourteen settings/defaults", syntax_and_metadata),
     ("Chinese/English sandbox metadata, saved language, UI help and gameplay messages", internationalization),
     ("non-Shipwrecked isolation and explicit false settings", isolation_and_toggles),
     ("gem multipliers/caps and fifth-dig gold guarantee", treasure),
@@ -428,4 +434,6 @@ for name, fn in [
     ("octopus animation lock, daily food gate and save/load", trading),
 ]:
     check(name, fn)
+from hamlet_checks import run_checks as run_hamlet_checks
+run_hamlet_checks(runtime, check)
 print("All checks passed. In-game verification is still required.")

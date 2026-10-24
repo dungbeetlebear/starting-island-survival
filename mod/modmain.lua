@@ -371,8 +371,10 @@ AddComponentPostInit("resurrectable",function(c)
 end)
 
 modimport("scripts/sis_trade.lua")
+modimport("scripts/sis_hamlet.lua")
 modimport("scripts/sis_treasure.lua")
+modimport("scripts/sis_bandits.lua")
 if SIS_CONFIG.coastal_spiderden then modimport("scripts/sis_spiders.lua") end
 modimport("scripts/sis_timers.lua")
 modimport("scripts/sis_characters.lua")
-modimport("scripts/sis_vacuum.lua")
+if SIS_CONFIG.fishbone_vacuum then modimport("scripts/sis_vacuum.lua") end
